@@ -138,30 +138,80 @@ class HomePage extends StatelessWidget {
 class PictureBlockPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
+  return Column(
       children: [
-        SingleChildScrollView(
+        Container(
+          height: 80,
+        child:SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: List.generate(8, (index) {
-              return Padding(
+            children: [
+              Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: Image.asset(
-                  'assets/images/lift_leg.jpg', // Adjust the file name as needed
-                  width: 50, // Adjust the size as needed
-                  height: 50,
+                  'assets/images/follow.jpg',
+                  fit: BoxFit.cover,
                 ),
-              );
-            }),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.asset(
+                  'assets/images/lift_leg.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.asset(
+                  'assets/images/noseButton.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.asset(
+                  'assets/images/sound.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.asset(
+                  'assets/images/start.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.asset(
+                  'assets/images/wait.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.asset(
+                  'assets/images/cry.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.asset(
+                  'assets/images/right.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
           ),
+        ),
         ),
         Expanded(
           child: Container(
-            color: Colors.purpleAccent, // Adjust the color as needed
-            child: Center(
-              child: Text(
-                'Content Below',
-                style: TextStyle(color: Colors.white, fontSize: 24),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/picGround.jpg'),
+                fit: BoxFit.fitHeight,
               ),
             ),
           ),
