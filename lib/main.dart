@@ -66,6 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
       case 1:
         page = FavoritesPage();
+      case 2:
+        page = ImagesPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
 }
@@ -85,6 +87,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     NavigationRailDestination(
                       icon: Icon(Icons.favorite),
                       label: Text('Favorites'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.image),
+                      label: Text('Images'),
                     ),
                   ],
                   selectedIndex: selectedIndex,
@@ -221,6 +227,42 @@ class FavoritesPage extends StatelessWidget {
             title: Text(pair.asLowerCase),
             trailing: Icon(Icons.favorite, color: theme.colorScheme.primary),
           ),
+      ],
+    );
+  }
+}
+
+class ImagesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: List.generate(8, (index) {
+              return Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.asset(
+                  'assets/images/lift_leg.jpg', // Adjust the file name as needed
+                  width: 50, // Adjust the size as needed
+                  height: 50,
+                ),
+              );
+            }),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            color: Colors.purpleAccent, // Adjust the color as needed
+            child: Center(
+              child: Text(
+                'Content Below',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
