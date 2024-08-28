@@ -14,10 +14,10 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
-        title: 'Namer App',
+        title: 'EduKate',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          scaffoldBackgroundColor: Color(0xFFFFD2E2),
         ),
         home: MyHomePage(),
       ),
@@ -30,22 +30,6 @@ class MyAppState extends ChangeNotifier {
 
   void getNext() {
     current = WordPair.random();
-    notifyListeners();
-  }
-
-  var favorites = <WordPair>[];
-
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
-
-  void removeFavorite(WordPair pair) {
-    favorites.remove(pair);
     notifyListeners();
   }
 }
@@ -63,11 +47,13 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
+        page = HomePage(onNavigate: () {
+          setState(() {
+            selectedIndex = 1; // 跳转到 PictureBlockPage
+          });
+        });
       case 1:
-        page = FavoritesPage();
-      case 2:
-        page = ImagesPage();
+        page = PictureBlockPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
 }
@@ -85,12 +71,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       label: Text('Home'),
                     ),
                     NavigationRailDestination(
-                      icon: Icon(Icons.favorite),
-                      label: Text('Favorites'),
-                    ),
-                    NavigationRailDestination(
                       icon: Icon(Icons.image),
-                      label: Text('Images'),
+                      label: Text('Picture Block'),
                     ),
                   ],
                   selectedIndex: selectedIndex,
@@ -103,7 +85,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Expanded(
                 child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
                   child: page,
                 ),
               ),
@@ -115,124 +96,46 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+class HomePage extends StatelessWidget {
+
+  final VoidCallback onNavigate; // 添加导航回调
+
+  const HomePage({Key? key, required this.onNavigate}) : super(key: key);
+  
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     var pair = appState.current;
 
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
     return Center(
-      // body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('EduKate'),
-            BigCard(pair: pair),
-            SizedBox(height: 10),
-            //Text(appState.current.asLowerCase),
-        
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    appState.toggleFavorite();
-                  },
-                  icon: Icon(icon),
-                  label: Text('Like'),
+            Image.asset(
+            'assets/images/logo.jpg',
+            height: 200, // Set the desired height
+            fit: BoxFit.cover, // Fit mode for the image
+            ),
+            SizedBox(height: 30), // Add spacing between the images
+            MouseRegion(
+              cursor: SystemMouseCursors.click, 
+              // Change cursor to pointer when hovering
+              child: GestureDetector(
+                onTap: onNavigate, // Event triggered on tap
+                child: Image.asset(
+                  'assets/images/homePicBlock.jpg',
+                  height: 60, // Set the desired height
+                  fit: BoxFit.cover, // Fit mode for the image
                 ),
-                SizedBox(width: 10),
-
-                ElevatedButton(
-                  onPressed: () {
-                    appState.getNext();
-                  },
-                  child: Text('Next'),
-                ),
-              ],
+              ),
             ),
           ],
         ),
-      //),
     );
   }
 }
 
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-       child: Text(
-          pair.asLowerCase,
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",
-        ),
-      ),
-    );
-  }
-}
-
-
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
-        ),
-        for (var pair in appState.favorites)
-          ListTile(
-            leading: IconButton(
-                    icon: Icon(Icons.delete_outline, semanticLabel: 'Delete'),
-                    color: theme.colorScheme.primary,
-                    onPressed: () {
-                      appState.removeFavorite(pair);
-                    },
-                  ),
-            //leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
-            trailing: Icon(Icons.favorite, color: theme.colorScheme.primary),
-          ),
-      ],
-    );
-  }
-}
-
-class ImagesPage extends StatelessWidget {
+class PictureBlockPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
