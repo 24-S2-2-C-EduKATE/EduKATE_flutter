@@ -127,7 +127,7 @@ class GeneratorPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('!!!!!QWJZKA!!!!!'),
+            Text('EduKate'),
             BigCard(pair: pair),
             SizedBox(height: 10),
             //Text(appState.current.asLowerCase),
