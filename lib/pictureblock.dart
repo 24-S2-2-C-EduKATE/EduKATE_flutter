@@ -170,7 +170,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
             duration: const Duration(milliseconds: 300),
             width: isSidebarOpen ? 150 : 0, // 控制侧边栏宽度
             child: Container(
-              color: Colors.grey[300], // 侧边栏背景色
+              color: const Color.fromARGB(255, 255, 243, 192), // 侧边栏背景色
               // 侧边栏内容可以放在这里
             ),
           ),
