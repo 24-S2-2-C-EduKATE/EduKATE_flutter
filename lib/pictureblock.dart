@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'sidebar.dart'; // Import the Sidebar
+
 
 class PictureBlockPage extends StatefulWidget {
   @override
@@ -64,7 +66,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
       ),
 
       body: Row(
-        // 侧边栏
+        // 总的
         children: [
           Expanded(
             child: Column(
@@ -166,14 +168,8 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
               ],
             ),
           ),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            width: isSidebarOpen ? 150 : 0, // 控制侧边栏宽度
-            child: Container(
-              color: const Color.fromARGB(255, 255, 243, 192), // 侧边栏背景色
-              // 侧边栏内容可以放在这里
-            ),
-          ),
+          // 侧边栏
+          Sidebar(isOpen: isSidebarOpen), // 使用Sidebar.dart
         ],
       ),
     );
