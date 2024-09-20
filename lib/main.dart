@@ -172,7 +172,7 @@ class HomePage extends StatelessWidget {
             child: GestureDetector(
               onTap: onWordBlockNavigate,
               child: Image.asset(
-                'assets/images/homewordblock.png',
+                'assets/images/homewordblock.jpg',
                 height: 60,
                 fit: BoxFit.cover,
               ),
@@ -184,7 +184,7 @@ class HomePage extends StatelessWidget {
             child: GestureDetector(
               onTap: onTextBlockNavigate,
               child: Image.asset(
-                'assets/images/homePicBlock.jpg',
+                'assets/images/hometextcoding.jpg',
                 height: 60,
                 fit: BoxFit.cover,
               ),
