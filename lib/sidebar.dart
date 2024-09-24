@@ -5,35 +5,41 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:async';
 
 class Sidebar extends StatelessWidget {
+// Boolean to control whether the sidebar is open
   final bool isOpen;
 
+// Constructor requiring the isOpen parameter
   Sidebar({required this.isOpen});
 
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
-      width: isOpen ? 300 : 0,
+      // Using AnimatedContainer for animation effect
+      duration: Duration(milliseconds: 300), // Animation duration
+      width: isOpen ? 300 : 0, // Width is 300 if open, 0 if closed
       child: Drawer(
         child: isOpen
             ? Column(
+                // If sidebar is open, show a Column
                 children: [
                   Expanded(
-                    child: VirtualController(),
+                    child:
+                        VirtualController(), // VirtualController fills the available space
                   ),
                 ],
               )
-            : null,
+            : null, // If sidebar is closed, show nothing
       ),
     );
   }
 }
 
+// VirtualTile class represents a virtual tile in the game
 class VirtualTile {
-  final int index;
-  final String tileType;
+  final int index; // Index of the tile in the grid
+  final String tileType; // Type of the tile
 
-  VirtualTile(this.index, this.tileType);
+  VirtualTile(this.index, this.tileType); // Constructor
 }
 
 class Level {
@@ -48,12 +54,12 @@ class Level {
   static Future<Level> create(int id, int startX, int startY) async {
     String content = await rootBundle.loadString('assets/levels/level_$id.txt');
     List<String> lines = content.trim().split('\n');
-    int gridN = lines.length;
+    int gridN = lines.length; // get gridN
     List<VirtualTile> grid = [];
 
-    for (int y = 0; y < lines.length; y++) {
+    for (int y = 0; y < gridN; y++) {
       List<String> tiles = lines[y].trim().split(' ');
-      for (int x = 0; x < tiles.length; x++) {
+      for (int x = 0; x < gridN; x++) {
         grid.add(VirtualTile(y * gridN + x, tiles[x]));
       }
     }
@@ -62,26 +68,35 @@ class Level {
   }
 }
 
+// VirtualController class is a stateful widget for controlling game logic
 class VirtualController extends StatefulWidget {
   @override
   _VirtualControllerState createState() => _VirtualControllerState();
 }
 
+// _VirtualControllerState class contains the main game logic
 class _VirtualControllerState extends State<VirtualController> {
+  // Stores all levels
   List<Level> levels = [];
+  // Index of the current level
   int currentLevelIndex = 0;
+  // Current level
   Level? currentLevel;
+  // Current X coordinate of the doll
   int babyX = 0;
   int babyY = 0;
+  // Currently active grid
   List<VirtualTile> activeGrid = [];
+  // Loading state flag
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeLevels();
+    _initializeLevels(); // Initialize levels
   }
 
+// Asynchronous method to initialize all levels
   Future<void> _initializeLevels() async {
     try {
       levels = await Future.wait([
@@ -104,92 +119,109 @@ class _VirtualControllerState extends State<VirtualController> {
     }
   }
 
-  void _resetLevel() {
-    if (currentLevel == null) return;
-    babyX = currentLevel!.dollStartX;
-    babyY = currentLevel!.dollStartY;
-    activeGrid = List.from(currentLevel!.grid);
-    _drawBaby();
-  }
-
-  void _drawBaby() {
+void _resetLevel() {
   if (currentLevel == null) return;
-  // Reset the grid before drawing the baby
-  activeGrid = List.from(currentLevel!.grid);
+
+  babyX = currentLevel!.dollStartX;
+  babyY = currentLevel!.dollStartY;
   
-  int curIndex = babyX + babyY * currentLevel!.gridN;
-  if (curIndex >= 0 && curIndex < activeGrid.length) {
-    setState(() {
-      activeGrid[curIndex] = VirtualTile(curIndex, 'the_doll');
-    });
+ 
+  if (babyX < 0 || babyX >= currentLevel!.gridN || babyY < 0 || babyY >= currentLevel!.gridN) {
+    print('Invalid start position for level ${currentLevel!.id}: ($babyX, $babyY)');
+    babyX = 0;
+    babyY = 0;
   }
+  
+  activeGrid = List.from(currentLevel!.grid);
+  _drawBaby();
+  
+  // 添加日志
+  print('Reset level ${currentLevel!.id}. Baby should go position: ($babyX, $babyY)');
 }
 
-  bool _checkBabyPosition(int x, int y) {
-    if (currentLevel == null) return false;
-    int index = x + y * currentLevel!.gridN;
-    String tileType = currentLevel!.grid[index].tileType;
-    if (tileType == 'pink') {
-      return false;
-    } else if (tileType == 'start_doll') {
-      _endOfLevel();
-      return true;
+  void _drawBaby() {
+    if (currentLevel == null) return;
+
+    int curIndex = babyY * currentLevel!.gridN + babyX;
+    if (curIndex >= 0 && curIndex < currentLevel!.grid.length) {
+      setState(() {
+        //清除旧的娃娃位置
+        for (int i = 0; i < currentLevel!.grid.length; i++) {
+          if (activeGrid[i].tileType == 'the_doll') {
+            activeGrid[i] = currentLevel!.grid[i];
+          }
+        }
+        // 设置新的娃娃位置
+        activeGrid[curIndex] = VirtualTile(curIndex, 'the_doll');
+         print(
+          'Baby actual draw position: ($babyX, $babyY)');
+      });
+    } else {
+      print(
+          'Invalid baby position: ($babyX, $babyY) for grid size ${currentLevel!.gridN}');
     }
-    return true;
   }
+
+  bool _checkBabyPosition(int x, int y) {
+  if (currentLevel == null) return false;
+  if (x < 0 || x >= currentLevel!.gridN || y < 0 || y >= currentLevel!.gridN) {
+    return false; // 超出网格范围
+  }
+  int index = y * currentLevel!.gridN + x;
+  if (index < 0 || index >= currentLevel!.grid.length) {
+    return false;
+  }
+  String tileType = currentLevel!.grid[index].tileType;
+  if (tileType == 'pink') {
+    return false; // 不能移动到粉色瓦片
+  } else if (tileType == 'start_doll') {
+    _endOfLevel(); // 如果到达起始点，结束关卡
+    return false;
+  }
+  return true; // 可以移动到其他类型的瓦片
+}
 
   void _moveBaby(String direction) {
     if (currentLevel == null) return;
-    int oldIndex = babyX + babyY * currentLevel!.gridN;
-    bool moved = false;
+    int newX = babyX;
+    int newY = babyY;
 
     switch (direction) {
       case 'left':
-        if (babyX > 0 && _checkBabyPosition(babyX - 1, babyY)) {
-          babyX -= 1;
-          moved = true;
-        }
+        newX = babyX - 1;
         break;
       case 'right':
-        if (babyX < currentLevel!.gridN - 1 && _checkBabyPosition(babyX + 1, babyY)) {
-          babyX += 1;
-          moved = true;
-        }
+        newX = babyX + 1;
         break;
       case 'up':
-        if (babyY > 0 && _checkBabyPosition(babyX, babyY - 1)) {
-          babyY -= 1;
-          moved = true;
-        }
+        newY = babyY - 1;
         break;
       case 'down':
-        if (babyY < currentLevel!.gridN - 1 && _checkBabyPosition(babyX, babyY + 1)) {
-          babyY += 1;
-          moved = true;
-        }
+        newY = babyY + 1;
         break;
     }
 
-    if (moved) {
+    if (_checkBabyPosition(newX, newY)) {
       setState(() {
-        activeGrid[oldIndex] = currentLevel!.grid[oldIndex];
+        babyX = newX;
+        babyY = newY;
         _drawBaby();
+        print('After move - Baby now position: ($babyX, $babyY)');
       });
     } else {
       _shakeBaby();
     }
   }
 
+
   void _shakeBaby() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Cannot move there!'), duration: Duration(seconds: 1))
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Cannot move there!'), duration: Duration(seconds: 1)));
   }
 
   void _endOfLevel() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Level completed!'), duration: Duration(seconds: 2))
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Level completed!'), duration: Duration(seconds: 2)));
     _nextLevel();
   }
 
@@ -225,25 +257,30 @@ class _VirtualControllerState extends State<VirtualController> {
 
     return Column(
       children: [
-        Text('Level ${currentLevel!.id}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text('Level ${currentLevel!.id}',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         SizedBox(height: 10),
         Expanded(
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: currentLevel!.gridN,
+          child: AspectRatio(
+            // 新添加的 AspectRatio
+            aspectRatio: 1, // 保持正方形
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: currentLevel!.gridN,
+              ),
+              itemCount: activeGrid.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                  ),
+                  child: Image.asset(
+                    'assets/blocks/${activeGrid[index].tileType}.png',
+                    fit: BoxFit.contain, // 使用 contain 以确保图像适应单元格
+                  ),
+                );
+              },
             ),
-            itemCount: activeGrid.length,
-            itemBuilder: (context, index) {
-              return Container(
-                decoration: BoxDecoration(
-                  border: Border.all(),
-                ),
-                child: Image.asset(
-                  'assets/blocks/${activeGrid[index].tileType}.png',
-                  fit: BoxFit.cover,
-                ),
-              );
-            },
           ),
         ),
         Padding(
