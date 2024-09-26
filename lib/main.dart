@@ -57,17 +57,17 @@ class _MyHomePageState extends State<MyHomePage> {
         page = HomePage(
           onNavigate: () {
             setState(() {
-              selectedIndex = 1; // 跳转到 PictureBlockPage
+              selectedIndex = 1; // turn to PictureBlockPage
             });
           },
           onWordBlockNavigate: () {
             setState(() {
-              selectedIndex = 2; // 跳转到 WordBlockPage
+              selectedIndex = 2; // turn to WordBlockPage
             });
           },
           onTextBlockNavigate: () {
             setState(() {
-              selectedIndex = 3; // 跳转到 TextBlockPage
+              selectedIndex = 3; // turn to TextBlockPage
             });
           },
           

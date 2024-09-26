@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/block_sequence.dart';
 import 'package:flutter_application_1/picture_block/virtual_controller.dart';
-import 'sidebar.dart'; // Import the Sidebar
-import 'block_data.dart';
-import 'dragable_block.dart';
+import 'sidebar.dart'; // Import the Sidebar for navigation
+import 'block_data.dart'; // Import the BlockData model
+import 'dragable_block.dart'; // Import the DraggableBlock widget
 
 class PictureBlockPage extends StatefulWidget {
-  final GlobalKey<VirtualControllerState> virtualControllerKey;
+  final GlobalKey<VirtualControllerState> virtualControllerKey; // Key to access VirtualController
 
   const PictureBlockPage({Key? key, required this.virtualControllerKey}) : super(key: key);
 
@@ -15,23 +15,24 @@ class PictureBlockPage extends StatefulWidget {
 }
 
 class _PictureBlockPageState extends State<PictureBlockPage> {
-  List<String> commandImages = [];
-  List<BlockData> arrangedCommands = [];
-  String selectedCategory = 'General'; // 默认类别
-  bool isSidebarOpen = false; // 控制侧边栏的状态
-  BlockSequence blockSequence = BlockSequence();
+  List<String> commandImages = []; // List to hold command image paths
+  List<BlockData> arrangedCommands = []; // List of blocks that have been arranged
+  String selectedCategory = 'General'; // Default category for commands
+  bool isSidebarOpen = false; // Control the state of the sidebar
+  BlockSequence blockSequence = BlockSequence(); // Manage the order of blocks
 
-  GlobalKey _stackKey = GlobalKey(); // 用于获取工作区的大小和位置
+  GlobalKey _stackKey = GlobalKey(); // Key for accessing the stack's size and position
 
   @override
   void initState() {
     super.initState();
-    updateCommands(selectedCategory); // 初始加载命令图片
+    updateCommands(selectedCategory); // Load initial command images based on the selected category
   }
 
+  // Update the command images based on the selected category
   void updateCommands(String category) {
     setState(() {
-      selectedCategory = category;
+      selectedCategory = category; // Update the selected category
       if (category == 'General') {
         commandImages = [
           'assets/images/follow.jpg',
@@ -45,7 +46,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
         ];
       } else if (category == 'Category 1') {
         commandImages = [
-          'assets/images/follow.jpg', // 示例图片
+          'assets/images/follow.jpg', // Example image
           'assets/images/move_up.png',
           'assets/images/move_down.png',
           'assets/images/move_left.png',
@@ -53,298 +54,313 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
         ];
       } else if (category == 'Category 2') {
         commandImages = [
-          'assets/images/lift_leg.jpg', // 示例图片
+          'assets/images/lift_leg.jpg', // Example image
         ];
       }
-      // 可以添加更多类别
+      // More categories can be added as needed
     });
   }
 
+  // Toggle the sidebar open/close state
   void toggleSidebar() {
     setState(() {
-      isSidebarOpen = !isSidebarOpen;
+      isSidebarOpen = !isSidebarOpen; // Switch sidebar visibility
     });
   }
 
-  // 获取工作区内的本地坐标
+  // Get local position within the workspace from global position
   Offset _getLocalPosition(Offset globalPosition) {
     final RenderBox stackRenderBox = _stackKey.currentContext!.findRenderObject() as RenderBox;
     return stackRenderBox.globalToLocal(globalPosition);
   }
 
-  // 检测并处理积木块的连接
+  // Handle the update of the moved block
   void _handleBlockUpdate(BlockData movedBlock) {
-  setState(() {
-    // 检查是否拖出工作区
+    setState(() {
+      // Check if the block has been dragged out of the workspace
       if (movedBlock.position.dx < 0 || movedBlock.position.dx > _stackKey.currentContext!.size!.width ||
           movedBlock.position.dy < 0 || movedBlock.position.dy > _stackKey.currentContext!.size!.height) {
-        // 移除被拖出工作区的积木
+        // Remove the block if it has been dragged out of the workspace
         arrangedCommands.removeWhere((block) => block.id == movedBlock.id);
-        blockSequence.updateOrder(arrangedCommands);
-        return;
-    }
-    bool connected = false;
+        blockSequence.updateOrder(arrangedCommands); // Update block order
+        return; // Exit the function early
+      }
+      bool connected = false; // Track if any connections were made
 
-    for (var block in arrangedCommands) {
-      if (block != movedBlock) {
-        // 检测顶部连接
-        if (_canConnect(block, movedBlock, ConnectionType.bottom)) {
-          _establishConnection(block, movedBlock, ConnectionType.bottom);
-          connected = true;
-          break;
+      for (var block in arrangedCommands) {
+        if (block != movedBlock) {
+          // Check for connections between blocks
+          if (_canConnect(block, movedBlock, ConnectionType.bottom)) {
+            _establishConnection(block, movedBlock, ConnectionType.bottom); // Establish bottom connection
+            connected = true;
+            break; // Exit loop if connected
+          }
+          // Check for bottom connection
+          else if (_canConnect(movedBlock, block, ConnectionType.bottom)) {
+            _establishConnection(movedBlock, block, ConnectionType.bottom); // Establish bottom connection
+            connected = true;
+            break; // Exit loop if connected
+          }
+          // Check for left connection
+          else if (_canConnect(block, movedBlock, ConnectionType.right)) {
+            _establishConnection(block, movedBlock, ConnectionType.right); // Establish right connection
+            connected = true;
+            break; // Exit loop if connected
+          }
+          // Check for right connection
+          else if (_canConnect(movedBlock, block, ConnectionType.right)) {
+            _establishConnection(movedBlock, block, ConnectionType.right); // Establish right connection
+            connected = true;
+            break; // Exit loop if connected
+          }
+          // More connection types can be added
         }
-        // 检测底部连接
-        else if (_canConnect(movedBlock, block, ConnectionType.bottom)) {
-          _establishConnection(movedBlock, block, ConnectionType.bottom);
-          connected = true;
-          break;
+      }
+
+      // If no connections were made, disconnect the block
+      if (!connected) {
+        _disconnectAll(movedBlock); // Disconnect the block from all others
+      }
+      blockSequence.updateOrder(arrangedCommands); // Update the order after all connections
+      blockSequence.printBlockOrder(); // Print the current order of blocks
+    });
+  }
+
+  // Establish a connection between two blocks
+  void _establishConnection(BlockData block1, BlockData block2, ConnectionType connectionType) {
+    // Update the connection relationships between blocks
+    block1.connections[connectionType] = Connection(type: connectionType, connectedBlock: block2);
+    block2.connections[_getOppositeConnectionType(connectionType)] = Connection(
+      type: _getOppositeConnectionType(connectionType),
+      connectedBlock: block1,
+    );
+
+    // Align the positions based on the connection type
+    switch (connectionType) {
+      case ConnectionType.top:
+        block2.position = block1.position - Offset(0, blockHeight); // Align block2 above block1
+        break;
+      case ConnectionType.bottom:
+        block2.position = block1.position + Offset(0, blockHeight); // Align block2 below block1
+        break;
+      case ConnectionType.left:
+        block2.position = block1.position - Offset(blockWidth, 0); // Align block2 to the left of block1
+        break;
+      case ConnectionType.right:
+        block2.position = block1.position + Offset(blockWidth, 0); // Align block2 to the right of block1
+        break;
+    }
+  }
+
+  // Disconnect all connections for a specific block
+  void _disconnectAll(BlockData block) {
+    for (var connectionType in block.connections.keys.toList()) {
+      var connectedBlock = block.connections[connectionType]?.connectedBlock; // Get the connected block
+      if (connectedBlock != null) {
+        connectedBlock.connections.remove(_getOppositeConnectionType(connectionType)); // Remove connection from the other block
+      }
+      block.connections.remove(connectionType); // Remove the connection from this block
+    }
+  }
+
+  // Get the opposite connection type for a given type
+  ConnectionType _getOppositeConnectionType(ConnectionType type) {
+    switch (type) {
+      case ConnectionType.top:
+        return ConnectionType.bottom; // Opposite of top is bottom
+      case ConnectionType.bottom:
+        return ConnectionType.top; // Opposite of bottom is top
+      case ConnectionType.left:
+        return ConnectionType.right; // Opposite of left is right
+      case ConnectionType.right:
+        return ConnectionType.left; // Opposite of right is left
+    }
+  }
+
+  // Define the dimensions of the blocks
+  double blockWidth = 100.0; // Adjust based on actual size
+  double blockHeight = 85.0; // Adjust based on actual size
+
+  // Check if two blocks can connect based on their positions and connection type
+  bool _canConnect(BlockData block1, BlockData block2, ConnectionType connectionType) {
+    double threshold = 20.0; // Distance threshold for connecting
+
+    Offset position1, position2; // Positions for checking connection
+
+    switch (connectionType) {
+      case ConnectionType.top:
+        position1 = block1.position; // Position of block1
+        position2 = block2.position + Offset(0, blockHeight); // Position of block2 adjusted for top connection
+        break;
+      case ConnectionType.bottom:
+        position1 = block1.position + Offset(0, blockHeight); // Position of block1 adjusted for bottom connection
+        position2 = block2.position; // Position of block2
+        break;
+      case ConnectionType.left:
+        position1 = block1.position; // Position of block1
+        position2 = block2.position + Offset(blockWidth, 0); // Position of block2 adjusted for left connection
+        break;
+      case ConnectionType.right:
+        position1 = block1.position + Offset(blockWidth, 0); // Position of block1 adjusted for right connection
+        position2 = block2.position; // Position of block2
+        break;
+    }
+
+    // Check if the distance between the positions is within the threshold
+    if ((position1 - position2).distance <= threshold) {
+      // Optional: Check for alignment (can be adjusted)
+      if (connectionType == ConnectionType.left || connectionType == ConnectionType.right) {
+        // For left/right connections, check vertical alignment
+        if ((block1.position.dy - block2.position.dy).abs() <= threshold) {
+          return true; // Aligned
         }
-        // 检测左侧连接
-        else if (_canConnect(block, movedBlock, ConnectionType.right)) {
-          _establishConnection(block, movedBlock, ConnectionType.right);
-          connected = true;
-          break;
+      } else {
+        // For top/bottom connections, check horizontal alignment
+        if ((block1.position.dx - block2.position.dx).abs() <= threshold) {
+          return true; // Aligned
         }
-        // 检测右侧连接
-        else if (_canConnect(movedBlock, block, ConnectionType.right)) {
-          _establishConnection(movedBlock, block, ConnectionType.right);
-          connected = true;
-          break;
-        }
-        // 可以添加更多连接类型
       }
     }
-
-    // 如果没有连接，解除所有连接
-    if (!connected) {
-      _disconnectAll(movedBlock);
-    }
-    blockSequence.updateOrder(arrangedCommands);
-    blockSequence.printBlockOrder();
-  });
-}
-
-void _establishConnection(BlockData block1, BlockData block2, ConnectionType connectionType) {
-  // 更新连接关系
-  block1.connections[connectionType] = Connection(type: connectionType, connectedBlock: block2);
-  block2.connections[_getOppositeConnectionType(connectionType)] = Connection(
-    type: _getOppositeConnectionType(connectionType),
-    connectedBlock: block1,
-  );
-
-  // 对齐位置
-  switch (connectionType) {
-    case ConnectionType.top:
-      block2.position = block1.position - Offset(0, blockHeight);
-    case ConnectionType.bottom:
-      block2.position = block1.position + Offset(0, blockHeight);
-    case ConnectionType.left:
-      block2.position = block1.position - Offset(blockWidth, 0);
-    case ConnectionType.right:
-      block2.position = block1.position + Offset(blockWidth, 0);
+    return false; // Not connected
   }
-}
-
-void _disconnectAll(BlockData block) {
-  for (var connectionType in block.connections.keys.toList()) {
-    var connectedBlock = block.connections[connectionType]?.connectedBlock;
-    if (connectedBlock != null) {
-      connectedBlock.connections.remove(_getOppositeConnectionType(connectionType));
-    }
-    block.connections.remove(connectionType);
-  }
-}
-
-ConnectionType _getOppositeConnectionType(ConnectionType type) {
-  switch (type) {
-    case ConnectionType.top:
-      return ConnectionType.bottom;
-    case ConnectionType.bottom:
-      return ConnectionType.top;
-    case ConnectionType.left:
-      return ConnectionType.right;
-    case ConnectionType.right:
-      return ConnectionType.left;
-  }
-}
-
-  // 定义积木块的尺寸
-double blockWidth = 100.0; // 根据实际尺寸调整
-double blockHeight = 85.0; // 根据实际尺寸调整
-
-bool _canConnect(BlockData block1, BlockData block2, ConnectionType connectionType) {
-  double threshold = 20.0; // 连接距离阈值
-
-  Offset position1, position2;
-
-  switch (connectionType) {
-    case ConnectionType.top:
-      position1 = block1.position;
-      position2 = block2.position + Offset(0, blockHeight);
-    case ConnectionType.bottom:
-      position1 = block1.position + Offset(0, blockHeight);
-      position2 = block2.position;
-    case ConnectionType.left:
-      position1 = block1.position;
-      position2 = block2.position + Offset(blockWidth, 0);
-    case ConnectionType.right:
-      position1 = block1.position + Offset(blockWidth, 0);
-      position2 = block2.position;
-  }
-
-  if ((position1 - position2).distance <= threshold) {
-    // 判断对齐（可选）
-    if (connectionType == ConnectionType.left || connectionType == ConnectionType.right) {
-      if ((block1.position.dy - block2.position.dy).abs() <= threshold) {
-        return true;
-      }
-    } else {
-      if ((block1.position.dx - block2.position.dx).abs() <= threshold) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
 
 @override
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: const Text('Picture Block Page'),
+      title: const Text('Picture Block Page'), // App bar title
       actions: [
         IconButton(
-          icon: const Icon(Icons.keyboard_double_arrow_right_outlined),
-          onPressed: toggleSidebar,
+          icon: const Icon(Icons.keyboard_double_arrow_right_outlined), // Icon for sidebar toggle
+          onPressed: toggleSidebar, // Function to toggle sidebar visibility
         ),
       ],
     ),
     body: Row(
-      // 总的
+      // Main layout using a Row widget
       children: [
         Expanded(
           child: Column(
             children: [
-              const SizedBox(height: 10),
-              // 顶部类别按钮
+              const SizedBox(height: 10), // Spacer
+              // Top category buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 10), // Spacer
                   ElevatedButton(
-                    onPressed: () => updateCommands('General'),
+                    onPressed: () => updateCommands('General'), // Update commands for 'General' category
                     child: const Text('General'),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 10), // Spacer
                   ElevatedButton(
-                    onPressed: () => updateCommands('Category 1'),
+                    onPressed: () => updateCommands('Category 1'), // Update commands for 'Category 1'
                     child: const Text('Category 1'),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 10), // Spacer
                   ElevatedButton(
-                    onPressed: () => updateCommands('Category 2'),
+                    onPressed: () => updateCommands('Category 2'), // Update commands for 'Category 2'
                     child: const Text('Category 2'),
                   ),
-                  // 可以添加更多类别按钮
+                  // Additional category buttons can be added here
                 ],
               ),
-              const SizedBox(height: 10),
-              // 添加 Run 按钮
+              const SizedBox(height: 10), // Spacer
+              // Run button
               ElevatedButton(
                 onPressed: () {
-                  // 使用 GlobalKey 调用 VirtualController 的 executeMoves
-                    if (widget.virtualControllerKey.currentState != null) {
-                      setState(() {
-                        widget.virtualControllerKey.currentState!.executeMoves(blockSequence.getBlockOrder());
-                      });
-                    } else {
-                      print('VirtualController 未加载');
-                    }
+                  // Call VirtualController's executeMoves using GlobalKey
+                  if (widget.virtualControllerKey.currentState != null) {
+                    setState(() {
+                      widget.virtualControllerKey.currentState!.executeMoves(blockSequence.getBlockOrder());
+                    });
+                  } else {
+                    print('VirtualController not loaded'); // Debug message
+                  }
                 },
                 child: const Text('Run'),
               ),
-              const SizedBox(height: 10),
-              // 图片按钮区域
+              const SizedBox(height: 10), // Spacer
+              // Area for command images
               SizedBox(
-                height: 85, // 设置固定高度
+                height: 85, // Set fixed height
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 8, //
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    mainAxisExtent: 85, // 每个单元格的高度
+                    crossAxisCount: 8, // Number of columns in grid
+                    crossAxisSpacing: 10, // Space between columns
+                    mainAxisSpacing: 10, // Space between rows
+                    mainAxisExtent: 85, // Height of each grid cell
                   ),
-                  itemCount: commandImages.length,
+                  itemCount: commandImages.length, // Total number of command images
                   itemBuilder: (context, index) {
                     return Draggable<String>(
-                      data: commandImages[index],
+                      data: commandImages[index], // Data to be dragged
                       feedback: Material(
                         child: SizedBox(
                           height: 85,
                           child: Image.asset(
-                            commandImages[index],
+                            commandImages[index], // Image being dragged
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
                       child: SizedBox(
                         child: Image.asset(
-                          commandImages[index],
+                          commandImages[index], // Image displayed in the grid
                         ),
                       ),
                     );
                   },
                 ),
               ),
-              const SizedBox(height: 10),
-              // 用户排列区域
+              const SizedBox(height: 10), // Spacer
+              // User arrangement area
               Expanded(
                 child: Container(
                   key: _stackKey,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/picGround.jpg'), // 背景图
-                      fit: BoxFit.cover, // 填充方式
+                      image: AssetImage('assets/images/picGround.jpg'), // Background image
+                      fit: BoxFit.cover, // Fill mode
                     ),
                   ),
                   child: Stack(
                     key: _stackKey,
                     children: [
-                      // 接受新积木块的 DragTarget
+                      // DragTarget for accepting new blocks
                       DragTarget<String>(
                         onAcceptWithDetails: (details) {
                           setState(() {
-                            final localPosition = _getLocalPosition(details.offset);
+                            final localPosition = _getLocalPosition(details.offset); // Get local position for the new block
                             arrangedCommands.add(BlockData(
-                              imagePath: details.data,
-                              position: localPosition,
+                              imagePath: details.data, // Image path of the dragged block
+                              position: localPosition, // Position of the block
                             ));
-                            // 更新积木顺序
+                            // Update block order
                             blockSequence.updateOrder(arrangedCommands);
-                            blockSequence.printBlockOrder();
+                            blockSequence.printBlockOrder(); // Debug print of block order
                           });
                         },
                         builder: (context, candidateData, rejectedData) {
                           return Container(
                             width: double.infinity,
                             height: double.infinity,
-                            color: Colors.transparent,
+                            color: Colors.transparent, // Transparent target area
                           );
                         },
                       ),
-                      // 已放置的积木块
+                      // Render placed blocks
                       ...arrangedCommands.map((block) {
                         return DraggableBlock(
-                          blockData: block,
-                          onUpdate: _handleBlockUpdate,
+                          blockData: block, // Pass the block data
+                          onUpdate: _handleBlockUpdate, // Callback for block updates
                         );
                       }).toList(),
                       Positioned(
                         top: 0,
                         right: 0,
                         child: VirtualController(
-                            key: widget.virtualControllerKey, // 使用传入的 GlobalKey
+                          key: widget.virtualControllerKey, // Use passed GlobalKey
                         ),
                       )
                     ],
@@ -354,9 +370,9 @@ Widget build(BuildContext context) {
             ],
           ),
         ),
-        // 侧边栏
-        Sidebar(isOpen: isSidebarOpen,virtualControllerKey: widget.virtualControllerKey), // 使用Sidebar.dart
-        const SizedBox(height: 5),
+        // Sidebar widget
+        Sidebar(isOpen: isSidebarOpen, virtualControllerKey: widget.virtualControllerKey), // Pass key to Sidebar
+        const SizedBox(height: 5), // Spacer
       ],
     ),
   );

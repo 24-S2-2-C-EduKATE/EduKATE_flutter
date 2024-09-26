@@ -3,109 +3,111 @@ import 'package:flutter_application_1/picture_block/block_data.dart';
 import 'package:flutter_application_1/picture_block/virtual_controller.dart';
 import 'dart:ui';
 
-
-
 class BlockSequence {
-  // 保存积木顺序的列表
+  // List to store the order of blocks
   List<BlockData> _blockOrder = [];
 
+  // Constructor that initializes with a default block
   BlockSequence() {
-    // 创建并添加一个默认的BlockData对象
+    // Create and add a default BlockData object
     BlockData defaultBlock = BlockData(
-      imagePath: 'assets/images/move_up.png', // 默认的图片路径
-      position: Offset(0, 0), // 默认的位置信息
+      imagePath: 'assets/images/move_up.png', // Default image path
+      position: Offset(0, 0), // Default position information
     );
-    _blockOrder.add(defaultBlock); // 将默认的BlockData添加到列表中
+    _blockOrder.add(defaultBlock); // Add the default BlockData to the list
   }
 
-  // 添加积木到顺序中
+  // Add a block to the order
   void addBlock(BlockData block) {
+    // Add the block if it is not already in the list
     if (!_blockOrder.contains(block)) {
       _blockOrder.add(block);
     }
   }
 
-  // 获取积木顺序
+  // Get the current block order
   List<BlockData> getBlockOrder() {
-    return List.unmodifiable(_blockOrder); // 返回不可修改的列表
+    return List.unmodifiable(_blockOrder); // Return an unmodifiable list
   }
 
+  // Get descriptions of the block order
   List<String> getBlockOrderDescriptions() {
-  return _blockOrder.map((block) => 'ID: ${block.id}, Image: ${block.imagePath}').toList();
-}
-
-
-  void updateOrder(List<BlockData> arrangedCommands) {
-  _blockOrder.clear();
-  
-  // 找到第一个积木块
-  BlockData? firstBlock = _findFirstBlock(arrangedCommands);
-  
-  // 如果有首积木块，按连接顺序递归添加积木块
-  if (firstBlock != null) {
-    _addToOrder(firstBlock);
+    return _blockOrder.map((block) => 'ID: ${block.id}, Image: ${block.imagePath}').toList();
   }
-}
 
+  // Update the order of blocks based on arranged commands
+  void updateOrder(List<BlockData> arrangedCommands) {
+    _blockOrder.clear(); // Clear the existing order
+    
+    // Find the first block
+    BlockData? firstBlock = _findFirstBlock(arrangedCommands);
+    
+    // If a first block is found, recursively add blocks in order
+    if (firstBlock != null) {
+      _addToOrder(firstBlock);
+    }
+  }
 
+  // Remove a block by its ID
   void removeBlock(String blockId) {
     _blockOrder.removeWhere((block) => block.id == blockId);
   }
 
-  // 找到第一个积木
- BlockData? _findFirstBlock(List<BlockData> arrangedCommands) {
-  for (var block in arrangedCommands) {
-    // 确保该积木块的顶部或左侧没有连接到其他积木
-    if (block.connections[ConnectionType.top]?.connectedBlock == null &&
-        block.connections[ConnectionType.left]?.connectedBlock == null) {
-      return block;
+  // Find the first block that is not connected on top or left
+  BlockData? _findFirstBlock(List<BlockData> arrangedCommands) {
+    for (var block in arrangedCommands) {
+      // Ensure that the block's top or left connections are not connected to other blocks
+      if (block.connections[ConnectionType.top]?.connectedBlock == null &&
+          block.connections[ConnectionType.left]?.connectedBlock == null) {
+        return block; // Return the first block found
+      }
+    }
+    return null; // Return null if no block is found
+  }
+
+  // Recursively add blocks to the order
+  void _addToOrder(BlockData block) {
+    addBlock(block); // Add the current block to the order
+    // Find the next block connected to the current block
+    var nextBlock = block.connections[ConnectionType.bottom]?.connectedBlock ?? 
+                    block.connections[ConnectionType.right]?.connectedBlock;
+    
+    // If there is a next block, recursively add it
+    if (nextBlock != null) {
+      _addToOrder(nextBlock);
     }
   }
-  return null;
-}
 
-
-  // 递归添加积木
-  void _addToOrder(BlockData block) {
-  addBlock(block); // 添加当前积木块到顺序中
-  // 找到与当前积木连接的下一个积木块
-  var nextBlock = block.connections[ConnectionType.bottom]?.connectedBlock ?? 
-                  block.connections[ConnectionType.right]?.connectedBlock;
-  
-  // 如果有下一个积木块，则递归添加
-  if (nextBlock != null) {
-    _addToOrder(nextBlock);
-  }
-}
-
-void executeMoves(Function(String) moveCallback) async {
+  // Execute moves based on the block order
+  void executeMoves(Function(String) moveCallback) async {
     for (var block in _blockOrder) {
       switch (block.imagePath) {
         case 'assets/images/move_up.png':
-          moveCallback('up');
+          moveCallback('up'); // Move up
           break;
         case 'assets/images/move_down.png':
-          moveCallback('down');
+          moveCallback('down'); // Move down
           break;
         case 'assets/images/move_left.png':
-          moveCallback('left');
+          moveCallback('left'); // Move left
           break;
         case 'assets/images/move_right.png':
-          moveCallback('right');
+          moveCallback('right'); // Move right
           break;
       }
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(Duration(milliseconds: 500)); // Wait for 500 milliseconds before the next move
     }
   }
 
+  // Run the blocks in order
   void runBlocks(VirtualController controller) {
-  print('Running blocks...');
-  executeMoves((direction) {
-    print('Moving baby $direction');
-  });
-}
+    print('Running blocks...');
+    executeMoves((direction) {
+      print('Moving baby $direction'); // Print the move direction
+    });
+  }
 
-  // 打印积木顺序（调试）
+  // Print the current block order for debugging
   void printBlockOrder() {
     print('Current Block Order:');
     for (var i = 0; i < _blockOrder.length; i++) {
