@@ -1,40 +1,10 @@
-// File: sidebar.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_application_1/picture_block/block_data.dart';
 import 'dart:async';
 
-class Sidebar extends StatelessWidget {
-// Boolean to control whether the sidebar is open
-  final bool isOpen;
+import 'package:flutter_application_1/picture_block/block_sequence.dart';
 
-// Constructor requiring the isOpen parameter
-  Sidebar({required this.isOpen});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      // Using AnimatedContainer for animation effect
-      duration: Duration(milliseconds: 300), // Animation duration
-      width: isOpen ? 300 : 0, // Width is 300 if open, 0 if closed
-      child: Drawer(
-        child: isOpen
-            ? Column(
-                // If sidebar is open, show a Column
-                children: [
-                  Expanded(
-                    child:
-                        VirtualController(), // VirtualController fills the available space
-                  ),
-                ],
-              )
-            : null, // If sidebar is closed, show nothing
-      ),
-    );
-  }
-}
-
-// VirtualTile class represents a virtual tile in the game
 class VirtualTile {
   final int index; // Index of the tile in the grid
   final String tileType; // Type of the tile
@@ -68,27 +38,24 @@ class Level {
   }
 }
 
-// VirtualController class is a stateful widget for controlling game logic
 class VirtualController extends StatefulWidget {
-  @override
-  _VirtualControllerState createState() => _VirtualControllerState();
+  // This public method will be used to control the baby externally
+
+  const VirtualController({Key? key}) : super(key: key);
+
+ @override
+  VirtualControllerState createState() => VirtualControllerState();
 }
 
-// _VirtualControllerState class contains the main game logic
-class _VirtualControllerState extends State<VirtualController> {
-  // Stores all levels
+class VirtualControllerState extends State<VirtualController> {
   List<Level> levels = [];
-  // Index of the current level
   int currentLevelIndex = 0;
-  // Current level
   Level? currentLevel;
-  // Current X coordinate of the doll
   int babyX = 0;
   int babyY = 0;
-  // Currently active grid
   List<VirtualTile> activeGrid = [];
-  // Loading state flag
   bool isLoading = true;
+  BlockSequence blockSequence = BlockSequence();
 
   @override
   void initState() {
@@ -96,7 +63,6 @@ class _VirtualControllerState extends State<VirtualController> {
     _initializeLevels(); // Initialize levels
   }
 
-// Asynchronous method to initialize all levels
   Future<void> _initializeLevels() async {
     try {
       levels = await Future.wait([
@@ -119,25 +85,23 @@ class _VirtualControllerState extends State<VirtualController> {
     }
   }
 
-void _resetLevel() {
-  if (currentLevel == null) return;
+  void _resetLevel() {
+    if (currentLevel == null) return;
 
-  babyX = currentLevel!.dollStartX;
-  babyY = currentLevel!.dollStartY;
-  
- 
-  if (babyX < 0 || babyX >= currentLevel!.gridN || babyY < 0 || babyY >= currentLevel!.gridN) {
-    print('Invalid start position for level ${currentLevel!.id}: ($babyX, $babyY)');
-    babyX = 0;
-    babyY = 0;
+    babyX = currentLevel!.dollStartX;
+    babyY = currentLevel!.dollStartY;
+
+    if (babyX < 0 || babyX >= currentLevel!.gridN || babyY < 0 || babyY >= currentLevel!.gridN) {
+      print('Invalid start position for level ${currentLevel!.id}: ($babyX, $babyY)');
+      babyX = 0;
+      babyY = 0;
+    }
+
+    activeGrid = List.from(currentLevel!.grid);
+    _drawBaby();
+
+    print('Reset level ${currentLevel!.id}. Baby should go position: ($babyX, $babyY)');
   }
-  
-  activeGrid = List.from(currentLevel!.grid);
-  _drawBaby();
-  
-  // 添加日志
-  print('Reset level ${currentLevel!.id}. Baby should go position: ($babyX, $babyY)');
-}
 
   void _drawBaby() {
     if (currentLevel == null) return;
@@ -145,43 +109,39 @@ void _resetLevel() {
     int curIndex = babyY * currentLevel!.gridN + babyX;
     if (curIndex >= 0 && curIndex < currentLevel!.grid.length) {
       setState(() {
-        //清除旧的娃娃位置
         for (int i = 0; i < currentLevel!.grid.length; i++) {
           if (activeGrid[i].tileType == 'the_doll') {
             activeGrid[i] = currentLevel!.grid[i];
           }
         }
-        // 设置新的娃娃位置
         activeGrid[curIndex] = VirtualTile(curIndex, 'the_doll');
-         print(
-          'Baby actual draw position: ($babyX, $babyY)');
+        print('Baby actual draw position: ($babyX, $babyY)');
       });
     } else {
-      print(
-          'Invalid baby position: ($babyX, $babyY) for grid size ${currentLevel!.gridN}');
+      print('Invalid baby position: ($babyX, $babyY) for grid size ${currentLevel!.gridN}');
     }
   }
 
   bool _checkBabyPosition(int x, int y) {
-  if (currentLevel == null) return false;
-  if (x < 0 || x >= currentLevel!.gridN || y < 0 || y >= currentLevel!.gridN) {
-    return false; // 超出网格范围
+    if (currentLevel == null) return false;
+    if (x < 0 || x >= currentLevel!.gridN || y < 0 || y >= currentLevel!.gridN) {
+      return false; // 超出网格范围
+    }
+    int index = y * currentLevel!.gridN + x;
+    if (index < 0 || index >= currentLevel!.grid.length) {
+      return false;
+    }
+    String tileType = currentLevel!.grid[index].tileType;
+    if (tileType == 'pink') {
+      return false; // 不能移动到粉色瓦片
+    } else if (tileType == 'start_doll') {
+      _endOfLevel(); // 如果到达起始点，结束关卡
+      return false;
+    }
+    return true; // 可以移动到其他类型的瓦片
   }
-  int index = y * currentLevel!.gridN + x;
-  if (index < 0 || index >= currentLevel!.grid.length) {
-    return false;
-  }
-  String tileType = currentLevel!.grid[index].tileType;
-  if (tileType == 'pink') {
-    return false; // 不能移动到粉色瓦片
-  } else if (tileType == 'start_doll') {
-    _endOfLevel(); // 如果到达起始点，结束关卡
-    return false;
-  }
-  return true; // 可以移动到其他类型的瓦片
-}
 
-  void _moveBaby(String direction) {
+  void moveBaby(String direction) {
     if (currentLevel == null) return;
     int newX = babyX;
     int newY = babyY;
@@ -212,7 +172,6 @@ void _resetLevel() {
       _shakeBaby();
     }
   }
-
 
   void _shakeBaby() {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -245,6 +204,26 @@ void _resetLevel() {
     }
   }
 
+  void executeMoves(List<BlockData> blocks) async {
+    for (var block in blocks) {
+      switch (block.imagePath) {
+        case 'assets/images/move_up.png':
+          moveBaby('up');
+          break;
+        case 'assets/images/move_down.png':
+          moveBaby('down');
+          break;
+        case 'assets/images/move_left.png':
+          moveBaby('left');
+          break;
+        case 'assets/images/move_right.png':
+          moveBaby('right');
+          break;
+      }
+      await Future.delayed(Duration(milliseconds: 500));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -262,7 +241,6 @@ void _resetLevel() {
         SizedBox(height: 10),
         Expanded(
           child: AspectRatio(
-            // 新添加的 AspectRatio
             aspectRatio: 1, // 保持正方形
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -289,19 +267,19 @@ void _resetLevel() {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: () => _moveBaby('left'),
+                onPressed: () => moveBaby('left'),
                 child: Icon(Icons.arrow_left),
               ),
               ElevatedButton(
-                onPressed: () => _moveBaby('up'),
+                onPressed: () => moveBaby('up'),
                 child: Icon(Icons.arrow_upward),
               ),
               ElevatedButton(
-                onPressed: () => _moveBaby('down'),
+                onPressed: () => moveBaby('down'),
                 child: Icon(Icons.arrow_downward),
               ),
               ElevatedButton(
-                onPressed: () => _moveBaby('right'),
+                onPressed: () => moveBaby('right'),
                 child: Icon(Icons.arrow_right),
               ),
             ],

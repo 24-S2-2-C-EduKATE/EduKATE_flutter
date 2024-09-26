@@ -1,7 +1,8 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/picture_block/virtual_controller.dart';
 import 'package:provider/provider.dart';
-import 'pictureblock.dart'; //  PictureBlockPage
+import 'picture_block/pictureblock.dart'; //  PictureBlockPage
 import 'wordblock.dart'; 
 import 'textblock.dart';    //  TextBlockPage
 
@@ -46,6 +47,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
 
+  final GlobalKey<VirtualControllerState> virtualControllerKey = GlobalKey<VirtualControllerState>();
+
   @override
   Widget build(BuildContext context) {
     Widget page;
@@ -71,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         break;
       case 1:
-        page = PictureBlockPage();
+        page = PictureBlockPage(virtualControllerKey: virtualControllerKey);
         break;
       case 2:
         page = WordBlockPage();

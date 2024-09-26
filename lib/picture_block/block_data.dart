@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:uuid/uuid.dart';
 enum ConnectionType {
   top,
   bottom,
@@ -15,6 +15,7 @@ class Connection {
 }
 
 class BlockData {
+  String id; 
   String imagePath;
   Offset position;
   Map<ConnectionType, Connection> connections = {};
@@ -22,5 +23,5 @@ class BlockData {
   BlockData({
     required this.imagePath,
     required this.position,
-  });
+  }): id = Uuid().v4();
 }

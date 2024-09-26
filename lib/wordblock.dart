@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'sidebar.dart'; // Import the Sidebar
+import 'picture_block/sidebar.dart'; // Import the Sidebar
 
 class WordBlockPage extends StatefulWidget {
   @override
@@ -34,7 +34,6 @@ class _WordBlockPageState extends State<WordBlockPage> {
               // Your main content here
             ),
           ),
-          Sidebar(isOpen: isSidebarOpen), // Use the Sidebar
         ],
       ),
     );
