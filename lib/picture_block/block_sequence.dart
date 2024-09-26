@@ -6,17 +6,7 @@ import 'dart:ui';
 class BlockSequence {
   // List to store the order of blocks
   List<BlockData> _blockOrder = [];
-
-  // Constructor that initializes with a default block
-  BlockSequence() {
-    // Create and add a default BlockData object
-    BlockData defaultBlock = BlockData(
-      imagePath: 'assets/images/move_up.png', // Default image path
-      position: Offset(0, 0), // Default position information
-    );
-    _blockOrder.add(defaultBlock); // Add the default BlockData to the list
-  }
-
+  
   // Add a block to the order
   void addBlock(BlockData block) {
     // Add the block if it is not already in the list
