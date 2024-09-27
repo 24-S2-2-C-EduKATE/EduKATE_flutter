@@ -1,13 +1,21 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/picture_block/virtual_controller.dart';
 import 'package:provider/provider.dart';
-import 'pictureblock.dart'; //  PictureBlockPage
+import 'picture_block/pictureblock.dart'; // Import PictureBlockPage
 import 'wordblock.dart'; 
-import 'textblock.dart';    //  TextBlockPage
-
+import 'textblock.dart';    // Import TextBlockPage
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MyAppState()), // Provider for MyAppState
+        ChangeNotifierProvider(create: (_) => VirtualController()),  // Provider for VirtualController
+      ],
+      child: const MyApp(), // Start the app with MyApp widget
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -15,26 +23,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'EduKate',
-        theme: ThemeData(
-          useMaterial3: true,
-          scaffoldBackgroundColor: Color(0xFFFFD2E2),
-        ),
-        home: MyHomePage(),
+    return MaterialApp(
+      title: 'EduKate', // Title of the application
+      theme: ThemeData(
+        useMaterial3: true, // Enable Material 3 design
+        scaffoldBackgroundColor: Color(0xFFFFD2E2), // Set background color of the scaffold
       ),
+      home: MyHomePage(), // Set home page
     );
   }
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
+  var current = WordPair.random(); // Random word pair state
 
   void getNext() {
-    current = WordPair.random();
-    notifyListeners();
+    current = WordPair.random(); // Generate the next random word pair
+    notifyListeners(); // Notify listeners about the state change
   }
 }
 
@@ -44,43 +49,44 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
+  var selectedIndex = 0; // Track the selected index for navigation
 
   @override
   Widget build(BuildContext context) {
-    Widget page;
+    Widget page; // Variable to hold the current page
+
+    // Determine which page to show based on the selected index
     switch (selectedIndex) {
       case 0:
         page = HomePage(
           onNavigate: () {
             setState(() {
-              selectedIndex = 1; // 跳转到 PictureBlockPage
+              selectedIndex = 1; // Navigate to PictureBlockPage
             });
           },
           onWordBlockNavigate: () {
             setState(() {
-              selectedIndex = 2; // 跳转到 WordBlockPage
+              selectedIndex = 2; // Navigate to WordBlockPage
             });
           },
           onTextBlockNavigate: () {
             setState(() {
-              selectedIndex = 3; // 跳转到 TextBlockPage
+              selectedIndex = 3; // Navigate to TextBlockPage
             });
           },
-          
         );
         break;
       case 1:
-        page = PictureBlockPage();
+        page = PictureBlockPage(); // Show PictureBlockPage
         break;
       case 2:
-        page = WordBlockPage();
+        page = WordBlockPage(); // Show WordBlockPage
         break;
       case 3:
-        page = TextBlockPage();
+        page = TextBlockPage(); // Show TextBlockPage
         break;
       default:
-        throw UnimplementedError('no widget for $selectedIndex');
+        throw UnimplementedError('no widget for $selectedIndex'); // Handle unimplemented cases
     }
 
     return LayoutBuilder(builder: (context, constraints) {
@@ -89,36 +95,36 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             SafeArea(
               child: NavigationRail(
-                extended: constraints.maxWidth >= 1000,
+                extended: constraints.maxWidth >= 1000, // Extend the rail for larger screens
                 destinations: [
                   NavigationRailDestination(
-                    icon: Icon(Icons.home),
-                    label: Text('Home'),
+                    icon: Icon(Icons.home), // Icon for Home
+                    label: Text('Home'), // Label for Home
                   ),
                   NavigationRailDestination(
-                    icon: Icon(Icons.image),
-                    label: Text('Picture Block'),
-                  ),
-                   NavigationRailDestination(
-                    icon: Icon(Icons.book),
-                    label: Text('Word Block'),
+                    icon: Icon(Icons.image), // Icon for Picture Block
+                    label: Text('Picture Block'), // Label for Picture Block
                   ),
                   NavigationRailDestination(
-                    icon: Icon(Icons.text_fields),
-                    label: Text('Text Coding'),
+                    icon: Icon(Icons.book), // Icon for Word Block
+                    label: Text('Word Block'), // Label for Word Block
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.text_fields), // Icon for Text Coding
+                    label: Text('Text Coding'), // Label for Text Coding
                   ),
                 ],
-                selectedIndex: selectedIndex,
+                selectedIndex: selectedIndex, // Current selected index
                 onDestinationSelected: (value) {
                   setState(() {
-                    selectedIndex = value;
+                    selectedIndex = value; // Update selected index on navigation
                   });
                 },
               ),
             ),
             Expanded(
               child: Container(
-                child: page,
+                child: page, // Display the selected page
               ),
             ),
           ],
@@ -129,9 +135,9 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class HomePage extends StatelessWidget {
-  final VoidCallback onNavigate;
-  final VoidCallback onTextBlockNavigate;
-  final VoidCallback onWordBlockNavigate;
+  final VoidCallback onNavigate; // Callback for Picture Block navigation
+  final VoidCallback onTextBlockNavigate; // Callback for Text Block navigation
+  final VoidCallback onWordBlockNavigate; // Callback for Word Block navigation
 
   const HomePage({
     Key? key,
@@ -142,25 +148,25 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
+    var appState = context.watch<MyAppState>(); // Watch the MyAppState
+    var pair = appState.current; // Get the current word pair
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            'assets/images/logo.jpg',
+            'assets/images/logo.jpg', // Application logo
             height: 200,
             fit: BoxFit.cover,
           ),
           SizedBox(height: 30),
           MouseRegion(
-            cursor: SystemMouseCursors.click,
+            cursor: SystemMouseCursors.click, // Change cursor on hover
             child: GestureDetector(
-              onTap: onNavigate,
+              onTap: onNavigate, // Navigate to Picture Block on tap
               child: Image.asset(
-                'assets/images/homePicBlock.jpg',
+                'assets/images/homePicBlock.jpg', // Image for Picture Block navigation
                 height: 60,
                 fit: BoxFit.cover,
               ),
@@ -168,11 +174,11 @@ class HomePage extends StatelessWidget {
           ),
           SizedBox(height: 5),
           MouseRegion(
-            cursor: SystemMouseCursors.click,
+            cursor: SystemMouseCursors.click, // Change cursor on hover
             child: GestureDetector(
-              onTap: onWordBlockNavigate,
+              onTap: onWordBlockNavigate, // Navigate to Word Block on tap
               child: Image.asset(
-                'assets/images/homewordblock.jpg',
+                'assets/images/homewordblock.jpg', // Image for Word Block navigation
                 height: 60,
                 fit: BoxFit.cover,
               ),
@@ -180,11 +186,11 @@ class HomePage extends StatelessWidget {
           ),
           SizedBox(height: 5),
           MouseRegion(
-            cursor: SystemMouseCursors.click,
+            cursor: SystemMouseCursors.click, // Change cursor on hover
             child: GestureDetector(
-              onTap: onTextBlockNavigate,
+              onTap: onTextBlockNavigate, // Navigate to Text Block on tap
               child: Image.asset(
-                'assets/images/hometextcoding.jpg',
+                'assets/images/hometextcoding.jpg', // Image for Text Coding navigation
                 height: 60,
                 fit: BoxFit.cover,
               ),
