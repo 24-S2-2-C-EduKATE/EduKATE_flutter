@@ -51,32 +51,6 @@ class Sidebar extends StatelessWidget {
                               ],
                             ),
                     ),
-                    // Row for navigation buttons at the bottom of the sidebar
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Button to move the character left
-                        ElevatedButton(
-                          onPressed: () => virtualController.moveBaby('left'),
-                          child: Icon(Icons.arrow_left),
-                        ),
-                        // Button to move the character up
-                        ElevatedButton(
-                          onPressed: () => virtualController.moveBaby('up'),
-                          child: Icon(Icons.arrow_upward),
-                        ),
-                        // Button to move the character down
-                        ElevatedButton(
-                          onPressed: () => virtualController.moveBaby('down'),
-                          child: Icon(Icons.arrow_downward),
-                        ),
-                        // Button to move the character right
-                        ElevatedButton(
-                          onPressed: () => virtualController.moveBaby('right'),
-                          child: Icon(Icons.arrow_right),
-                        ),
-                      ],
-                    ),
                     // Row for level navigation buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
