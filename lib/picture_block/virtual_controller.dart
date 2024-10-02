@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_application_1/picture_block/block_data.dart';
 import 'dart:async';
-
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_application_1/picture_block/block_sequence.dart';
 import 'package:provider/provider.dart';
 
@@ -74,6 +74,11 @@ class VirtualController extends ChangeNotifier {
       notifyListeners(); // Notify listeners about the state change
     }
   }
+
+  Future<void> playSound(String soundFilePath) async {
+  final AudioPlayer audioPlayer = AudioPlayer(); 
+  await audioPlayer.play(DeviceFileSource(soundFilePath)); 
+}
 
   void _resetLevel() {
     if (currentLevel == null) return; // Return if there's no current level
@@ -216,6 +221,9 @@ class VirtualController extends ChangeNotifier {
         case 'assets/images/move_right.png':
           moveBaby('right'); // Move right
           break;
+        case 'assets/images/sound.png':  
+           await playSound('assets/sounds/bark.wav'); 
+           break;
       }
       await Future.delayed(Duration(milliseconds: 500)); // Delay between moves
     }

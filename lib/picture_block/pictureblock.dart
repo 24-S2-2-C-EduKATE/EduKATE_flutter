@@ -21,6 +21,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
   BlockSequence blockSequence = BlockSequence(); // Instance of BlockSequence to manage block order
 
   GlobalKey _stackKey = GlobalKey(); // Key for the stack to get its size and position
+  final GlobalKey _containerKey = GlobalKey();
 
   @override
   void initState() {
@@ -37,7 +38,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
           'assets/images/follow.jpg',
           'assets/images/lift_leg.jpg',
           'assets/images/noseButton.jpg',
-          'assets/images/sound.jpg',
+          'assets/images/sound.png',
           'assets/images/start.jpg',
           'assets/images/wait.jpg',
           'assets/images/cry.jpg',
@@ -54,6 +55,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
       } else if (category == 'Category 2') {
         commandImages = [
           'assets/images/lift_leg.jpg', // Example image
+          'assets/images/sound.png',
         ];
       }
       // More categories can be added here
@@ -177,7 +179,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
   }
 
   // Define block dimensions
-  double blockWidth = 100.0; // Adjust according to actual size
+  double blockWidth = 85.0; // Adjust according to actual size
   double blockHeight = 85.0; // Adjust according to actual size
 
   // Check if two blocks can connect
@@ -316,7 +318,7 @@ Widget build(BuildContext context) {
               // User's area for arranging blocks
               Expanded(
                 child: Container(
-                  key: _stackKey, // Key to manage the container's state
+                  key: _containerKey, // Key to manage the container's state
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage('assets/images/picGround.jpg'), // Background image
