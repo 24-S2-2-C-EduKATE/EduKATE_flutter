@@ -263,7 +263,6 @@ Widget build(BuildContext context) {
               ),
               child: FloatingActionButton(
                 onPressed: () {
-                
                   // Handle upload action
                 },
                 mini: true, // Smaller size
@@ -306,6 +305,7 @@ Widget build(BuildContext context) {
               child: FloatingActionButton(
                 onPressed: () {
                   // Handle stop action
+                  Provider.of<VirtualController>(context, listen: false).stopExecution();
                 },
                 mini: true,
                 elevation: 0, // Remove shadow

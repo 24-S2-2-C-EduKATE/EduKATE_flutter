@@ -50,6 +50,7 @@ class VirtualController extends ChangeNotifier {
   bool isLoading = true; // Loading state indicator
   BlockSequence blockSequence = BlockSequence(); // Block sequence manager
   String outcomeMessage = '';
+  bool isRunning = true;
 
   VirtualController() {
     _initializeLevels(); // Initialize levels on controller creation
@@ -226,8 +227,14 @@ void nextLevel() {
       notifyListeners();
       return;
     }
+
+    isRunning = true;
+
     // Execute a sequence of moves based on the provided block data
     for (var block in blocks) {
+      if (!isRunning) {
+        break;  
+      }
       switch (block.imagePath) {
         case 'assets/images/move_up.png':
           await moveBaby('up'); // Move up
@@ -247,6 +254,13 @@ void nextLevel() {
       
       await Future.delayed(Duration(milliseconds: 500)); // Delay between moves
     }
+  }
+
+  // Method to stop the block execution
+  void stopExecution() {
+    isRunning = false;  
+    outcomeMessage = "Stop!";
+    notifyListeners();
   }
 }
 

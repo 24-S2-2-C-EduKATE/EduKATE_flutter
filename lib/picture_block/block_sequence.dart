@@ -51,7 +51,6 @@ class BlockSequence {
       if (block.connections[ConnectionType.top]?.connectedBlock == null &&
           block.connections[ConnectionType.left]?.connectedBlock == null) {
             if (block.imagePath == 'assets/images/start_virtual.png') {
-              print('Found virtual start block.');
               return block; // Return the first block if it's the virtual start block
             }
             else{
@@ -75,30 +74,30 @@ class BlockSequence {
     }
   }
 
-  // Method to execute moves based on the block order
-  void executeMoves(Function(String) moveCallback) async {
-    for (var block in _blockOrder) {
-      switch (block.imagePath) {
-        case 'assets/images/move_up.png':
-          moveCallback('up'); // Call the move callback with 'up'
-        case 'assets/images/move_down.png':
-          moveCallback('down'); // Call the move callback with 'down'
-        case 'assets/images/move_left.png':
-          moveCallback('left'); // Call the move callback with 'left'
-        case 'assets/images/move_right.png':
-          moveCallback('right'); // Call the move callback with 'right'
-      }
-      await Future.delayed(Duration(milliseconds: 500)); // Delay between moves
-    }
-  }
+  // // Method to execute moves based on the block order
+  // void executeMoves(Function(String) moveCallback) async {
+  //   for (var block in _blockOrder) {
+  //     switch (block.imagePath) {
+  //       case 'assets/images/move_up.png':
+  //         moveCallback('up'); // Call the move callback with 'up'
+  //       case 'assets/images/move_down.png':
+  //         moveCallback('down'); // Call the move callback with 'down'
+  //       case 'assets/images/move_left.png':
+  //         moveCallback('left'); // Call the move callback with 'left'
+  //       case 'assets/images/move_right.png':
+  //         moveCallback('right'); // Call the move callback with 'right'
+  //     }
+  //     await Future.delayed(Duration(milliseconds: 500)); // Delay between moves
+  //   }
+  // }
 
-  // Method to run the blocks using a VirtualController
-  void runBlocks(VirtualController controller) {
-    print('Running blocks...'); // Debug message
-    executeMoves((direction) {
-      print('Moving baby $direction'); // Print the move direction
-    });
-  }
+  // // Method to run the blocks using a VirtualController
+  // void runBlocks(VirtualController controller) {
+  //   print('Running blocks...'); // Debug message
+  //   executeMoves((direction) {
+  //     print('Moving baby $direction'); // Print the move direction
+  //   });
+  // }
 
   // Method to print the current order of blocks for debugging
   void printBlockOrder() {
