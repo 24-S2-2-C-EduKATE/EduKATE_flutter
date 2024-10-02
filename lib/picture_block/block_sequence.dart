@@ -50,7 +50,13 @@ class BlockSequence {
       // Ensure the top or left of the block is not connected to any other blocks
       if (block.connections[ConnectionType.top]?.connectedBlock == null &&
           block.connections[ConnectionType.left]?.connectedBlock == null) {
-        return block; // Return the first unconnected block
+            if (block.imagePath == 'assets/images/start_virtual.png') {
+              print('Found virtual start block.');
+              return block; // Return the first block if it's the virtual start block
+            }
+            else{
+              print("Need start block!");
+            }
       }
     }
     return null; // Return null if no unconnected block is found

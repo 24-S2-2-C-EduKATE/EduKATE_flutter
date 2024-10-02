@@ -46,6 +46,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
         ];
       } else if (category == 'Virtual') {
         commandImages = [
+          'assets/images/start_virtual.png',
           'assets/images/move_up.png',
           'assets/images/move_down.png',
           'assets/images/move_left.png',

@@ -216,6 +216,8 @@ class VirtualController extends ChangeNotifier {
           await moveBaby('right'); // Move right
         case 'assets/images/sound.png':  // 声音积木
            await playSound('assets/sounds/bark.wav'); // 播放音效
+        case 'assets/images/virtual_start.png':  // Virtual start block
+            print('Start running...'); // Print start message
       }
       await Future.delayed(Duration(milliseconds: 500)); // Delay between moves
     }
