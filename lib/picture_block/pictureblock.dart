@@ -16,7 +16,7 @@ class PictureBlockPage extends StatefulWidget {
 class _PictureBlockPageState extends State<PictureBlockPage> {
   List<String> commandImages = []; // List to hold the command image paths
   List<BlockData> arrangedCommands = []; // List to hold the arranged blocks
-  String selectedCategory = 'General'; // Default category for command images
+  String selectedCategory = 'Events'; // Default category for command images
   bool isSidebarOpen = false; // State to control sidebar visibility
   BlockSequence blockSequence = BlockSequence(); // Instance of BlockSequence to manage block order
 
@@ -33,7 +33,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
     setState(() {
       selectedCategory = category; // Update the selected category
       // Load command images based on the selected category
-      if (category == 'General') {
+      if (category == 'Events') {
         commandImages = [
           'assets/images/follow.jpg',
           'assets/images/lift_leg.jpg',
@@ -44,15 +44,29 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
           'assets/images/cry.jpg',
           'assets/images/right.jpg',
         ];
-      } else if (category == 'Category 1') {
+      } else if (category == 'Virtual') {
         commandImages = [
-          'assets/images/follow.jpg', // Example image
           'assets/images/move_up.png',
           'assets/images/move_down.png',
           'assets/images/move_left.png',
           'assets/images/move_right.png',
         ];
-      } else if (category == 'Category 2') {
+      } else if (category == 'Actions') {
+        commandImages = [
+          'assets/images/lift_leg.jpg', // Example image
+          'assets/images/sound.png',
+        ];
+      }else if (category == 'Variables') {
+        commandImages = [
+          'assets/images/lift_leg.jpg', // Example image
+          'assets/images/sound.png',
+        ];
+      }else if (category == 'Control') {
+        commandImages = [
+          'assets/images/lift_leg.jpg', // Example image
+          'assets/images/sound.png',
+        ];
+      }else if (category == 'Sound') {
         commandImages = [
           'assets/images/lift_leg.jpg', // Example image
           'assets/images/sound.png',
@@ -238,6 +252,75 @@ Widget build(BuildContext context) {
           icon: const Icon(Icons.keyboard_double_arrow_right_outlined),
           onPressed: toggleSidebar,
         ),
+        // Spacer to push the buttons to the end
+        const SizedBox(width: 8),
+        // Row to hold the circular buttons
+        Row(
+          children: [
+            // Upload Button
+            Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 198, 236, 247), // Background color
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black), // Black border
+              ),
+              child: FloatingActionButton(
+                onPressed: () {
+                
+                  // Handle upload action
+                },
+                mini: true, // Smaller size
+                elevation: 0, // Remove shadow
+                hoverElevation: 0,
+                highlightElevation: 0, // Remove highlight shadow
+                backgroundColor: Colors.transparent, // Make background transparent to show the container color
+                child: const Icon(Icons.pets),
+              ),
+            ),
+            const SizedBox(width: 8), // Spacing between buttons
+            // Run Button
+            Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 198, 236, 247), // Background color
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black), // Black border
+              ),
+              child: FloatingActionButton(
+                onPressed: () {
+                  // Use the VirtualController instance to execute moves
+                  virtualController.executeMoves(blockSequence.getBlockOrder());
+                },
+                mini: true,
+                elevation: 0, // Remove shadow
+                hoverElevation: 0,
+                highlightElevation: 0, // Remove highlight shadow
+                backgroundColor: Colors.transparent, // Make background transparent to show the container color
+                child: const Icon(Icons.play_arrow),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Stop Button
+            Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 198, 236, 247), // Background color
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black), // Black border
+              ),
+              child: FloatingActionButton(
+                onPressed: () {
+                  // Handle stop action
+                },
+                mini: true,
+                elevation: 0, // Remove shadow
+                hoverElevation: 0,
+                highlightElevation: 0, // Remove highlight shadow
+                backgroundColor: Colors.transparent, // Make background transparent to show the container color
+                child: const Icon(Icons.stop),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 8),
       ],
     ),
     body: Row(
@@ -251,35 +334,43 @@ Widget build(BuildContext context) {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const SizedBox(width: 10),
-                  // Button to load General commands
+                  const SizedBox(width: 5),
+                  // Button to load Events commands
                   ElevatedButton(
-                    onPressed: () => updateCommands('General'),
-                    child: const Text('General'),
+                    onPressed: () => updateCommands('Events'),
+                    child: const Text('Events'),
                   ),
-                  const SizedBox(width: 10),
-                  // Button to load Category 1 commands
+                  const SizedBox(width: 5),
+                  // Button to load Virtual commands
                   ElevatedButton(
-                    onPressed: () => updateCommands('Category 1'),
-                    child: const Text('Category 1'),
+                    onPressed: () => updateCommands('Virtual'),
+                    child: const Text('Virtual'),
                   ),
-                  const SizedBox(width: 10),
-                  // Button to load Category 2 commands
+                  const SizedBox(width: 5),
+                  // Button to load Actions commands
                   ElevatedButton(
-                    onPressed: () => updateCommands('Category 2'),
-                    child: const Text('Category 2'),
+                    onPressed: () => updateCommands('Actions'),
+                    child: const Text('Actions'),
                   ),
-                  // Additional category buttons can be added here
+                  const SizedBox(width: 5),
+                  // Button to load Variables commands
+                  ElevatedButton(
+                    onPressed: () => updateCommands('Variables'),
+                    child: const Text('Variables'),
+                  ),
+                  const SizedBox(width: 5),
+                  // Button to load Control commands
+                  ElevatedButton(
+                    onPressed: () => updateCommands('Control'),
+                    child: const Text('Control'),
+                  ),
+                  const SizedBox(width: 5),
+                  // Button to load Sound commands
+                  ElevatedButton(
+                    onPressed: () => updateCommands('Sound'),
+                    child: const Text('Sound'),
+                  ),
                 ],
-              ),
-              const SizedBox(height: 10),
-              // Button to execute the commands in the block sequence
-              ElevatedButton(
-                onPressed: () {
-                  // Use the VirtualController instance to execute moves
-                  virtualController.executeMoves(blockSequence.getBlockOrder());
-                },
-                child: const Text('Run'),
               ),
               const SizedBox(height: 10),
               // Area to display command images

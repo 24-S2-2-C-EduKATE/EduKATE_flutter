@@ -95,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             SafeArea(
               child: NavigationRail(
-                extended: constraints.maxWidth >= 1000, // Extend the rail for larger screens
+                extended: constraints.maxWidth >= 1400, // Extend the rail for larger screens
                 destinations: [
                   NavigationRailDestination(
                     icon: Icon(Icons.home), // Icon for Home
