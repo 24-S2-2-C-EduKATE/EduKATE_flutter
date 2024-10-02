@@ -81,16 +81,12 @@ class BlockSequence {
       switch (block.imagePath) {
         case 'assets/images/move_up.png':
           moveCallback('up'); // Call the move callback with 'up'
-          break;
         case 'assets/images/move_down.png':
           moveCallback('down'); // Call the move callback with 'down'
-          break;
         case 'assets/images/move_left.png':
           moveCallback('left'); // Call the move callback with 'left'
-          break;
         case 'assets/images/move_right.png':
           moveCallback('right'); // Call the move callback with 'right'
-          break;
       }
       await Future.delayed(Duration(milliseconds: 500)); // Delay between moves
     }
