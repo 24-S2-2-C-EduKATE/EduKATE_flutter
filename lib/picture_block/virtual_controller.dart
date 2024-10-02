@@ -1,8 +1,9 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_application_1/picture_block/block_data.dart';
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
+
 import 'package:flutter_application_1/picture_block/block_sequence.dart';
 import 'package:provider/provider.dart';
 
@@ -121,7 +122,13 @@ class VirtualController extends ChangeNotifier {
     }
   }
 
-  bool _checkBabyPosition(int x, int y) {
+  Future<void> endOfLevel() async {
+    await playSound('assets/sounds/level_complete.wav'); 
+    nextLevel(); 
+    notifyListeners(); 
+  }
+
+   Future<bool> _checkBabyPosition(int x, int y) async {
     if (currentLevel == null) return false; // Return false if there's no current level
     // Check if the new position is within the grid bounds
     if (x < 0 || x >= currentLevel!.gridN || y < 0 || y >= currentLevel!.gridN) {
@@ -135,13 +142,13 @@ class VirtualController extends ChangeNotifier {
     if (tileType == 'pink') {
       return false; // Cannot move to pink tile
     } else if (tileType == 'start_doll') {
-      endOfLevel(); // If reached starting point, end the level
+      await endOfLevel();
       return false;
     }
     return true; // Can move to other types of tiles
   }
 
-  void moveBaby(String direction) {
+  Future<void> moveBaby(String direction) async {
     if (currentLevel == null) return; // Return if there's no current level
     int newX = babyX; // Initialize new X position
     int newY = babyY; // Initialize new Y position
@@ -150,20 +157,16 @@ class VirtualController extends ChangeNotifier {
     switch (direction) {
       case 'left':
         newX = babyX - 1;
-        break;
       case 'right':
         newX = babyX + 1;
-        break;
       case 'up':
         newY = babyY - 1;
-        break;
       case 'down':
         newY = babyY + 1;
-        break;
     }
 
     // Check if the new position is valid and update the position if so
-    if (_checkBabyPosition(newX, newY)) {
+    if (await _checkBabyPosition(newX, newY)) {
       babyX = newX;
       babyY = newY;
       _drawBaby(); // Redraw the baby at the new position
@@ -178,12 +181,6 @@ class VirtualController extends ChangeNotifier {
     // Notify listeners is not needed as it doesn't affect UI
     // Just show Snackbar or error message
     String errorMessage = 'Cannot move there!'; // Error message
-    notifyListeners(); // Notify listeners about the state change
-  }
-
-  void endOfLevel() {
-    // Logic for ending the level
-    nextLevel(); // Move to the next level
     notifyListeners(); // Notify listeners about the state change
   }
 
@@ -210,20 +207,15 @@ class VirtualController extends ChangeNotifier {
     for (var block in blocks) {
       switch (block.imagePath) {
         case 'assets/images/move_up.png':
-          moveBaby('up'); // Move up
-          break;
+          await moveBaby('up'); // Move up
         case 'assets/images/move_down.png':
-          moveBaby('down'); // Move down
-          break;
+          await moveBaby('down'); // Move down
         case 'assets/images/move_left.png':
-          moveBaby('left'); // Move left
-          break;
+          await moveBaby('left'); // Move left
         case 'assets/images/move_right.png':
-          moveBaby('right'); // Move right
-          break;
-        case 'assets/images/sound.png':  
-           await playSound('assets/sounds/bark.wav'); 
-           break;
+          await moveBaby('right'); // Move right
+        case 'assets/images/sound.png':  // 声音积木
+           await playSound('assets/sounds/bark.wav'); // 播放音效
       }
       await Future.delayed(Duration(milliseconds: 500)); // Delay between moves
     }
@@ -284,19 +276,27 @@ Widget build(BuildContext context) {
                 children: [
                   // Direction buttons for moving the doll
                   ElevatedButton(
-                    onPressed: () => virtualController.moveBaby('left'), // Move left
+                   onPressed: () async {
+                      await virtualController.moveBaby('left'); // Move left
+                    }, 
                     child: Icon(Icons.arrow_left),
                   ),
                   ElevatedButton(
-                    onPressed: () => virtualController.moveBaby('up'), // Move up
+                    onPressed: () async {
+                      await virtualController.moveBaby('up'); // Move up
+                    }, 
                     child: Icon(Icons.arrow_upward),
                   ),
                   ElevatedButton(
-                    onPressed: () => virtualController.moveBaby('down'), // Move down
+                    onPressed: () async {
+                      await virtualController.moveBaby('down'); // Move down
+                    }, 
                     child: Icon(Icons.arrow_downward),
                   ),
                   ElevatedButton(
-                    onPressed: () => virtualController.moveBaby('right'), // Move right
+                    onPressed: () async {
+                      await virtualController.moveBaby('right'); // Move right
+                    }, 
                     child: Icon(Icons.arrow_right),
                   ),
                 ],
