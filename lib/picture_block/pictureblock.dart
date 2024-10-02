@@ -443,6 +443,8 @@ Widget build(BuildContext context) {
                         return DraggableBlock(
                           blockData: block, // Pass the block data
                           onUpdate: _handleBlockUpdate, // Callback to handle block updates
+                          virtualController: virtualController,
+                          arrangedCommands: arrangedCommands,
                         );
                       }).toList(),
                    ],

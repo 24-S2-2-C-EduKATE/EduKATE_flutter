@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'block_data.dart';
+import 'package:flutter_application_1/picture_block/virtual_controller.dart';
 
 class DraggableBlock extends StatefulWidget {
   final BlockData blockData; // Data associated with the block
   final Function(BlockData) onUpdate; // Callback function to update the block data
+  final VirtualController virtualController;
+  final List<BlockData> arrangedCommands;
 
   DraggableBlock({
     required this.blockData, // Required block data parameter
     required this.onUpdate,   // Required update callback
+    required this.virtualController,
+    required this.arrangedCommands,
   });
 
   @override
@@ -40,6 +45,17 @@ class _DraggableBlockState extends State<DraggableBlock> {
       left: _offset.dx, // Set horizontal position
       top: _offset.dy,  // Set vertical position
       child: GestureDetector(
+        onTap: () {
+        // 找到当前积木块的索引
+        int currentIndex = widget.arrangedCommands.indexOf(widget.blockData);
+  
+        // 从当前积木块开始的所有积木块
+        List<BlockData> remainingBlocks = widget.arrangedCommands.sublist(currentIndex);
+
+        // 传递剩余积木块给 executeMoves 方法
+        widget.virtualController.executeMoves(remainingBlocks);
+
+       },
         onPanUpdate: (details) {
           setState(() {
             _offset += details.delta; // Update offset based on drag movement
