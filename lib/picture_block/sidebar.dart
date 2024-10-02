@@ -41,7 +41,7 @@ class Sidebar extends StatelessWidget {
                                           ),
                                           child: Image.asset(
                                             'assets/blocks/${virtualController.activeGrid[index].tileType}.png', // Load image based on tile type
-                                            fit: BoxFit.contain, // Fit image within the container
+                                            fit: BoxFit.fill, // Fit image within the container
                                           ),
                                         );
                                       },
