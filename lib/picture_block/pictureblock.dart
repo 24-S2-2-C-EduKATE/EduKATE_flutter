@@ -155,16 +155,12 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
     switch (connectionType) {
       case ConnectionType.top:
         block2.position = block1.position - Offset(0, blockHeight);
-        break; // Add break statement to exit the switch
       case ConnectionType.bottom:
         block2.position = block1.position + Offset(0, blockHeight);
-        break; // Add break statement to exit the switch
       case ConnectionType.left:
         block2.position = block1.position - Offset(blockWidth, 0);
-        break; // Add break statement to exit the switch
       case ConnectionType.right:
         block2.position = block1.position + Offset(blockWidth, 0);
-        break; // Add break statement to exit the switch
     }
   }
 
@@ -449,19 +445,40 @@ Widget build(BuildContext context) {
                           onUpdate: _handleBlockUpdate, // Callback to handle block updates
                         );
                       }).toList(),
-                    ],
+                   ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Consumer<VirtualController>(
+                  builder: (context, virtualController, child) {
+                    return Container(
+                      width: double.infinity, // Make the container as wide as possible
+                      padding: EdgeInsets.all(10),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(50), // Make the shape elliptical
+                        child: Container(
+                          color: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                          child: Text(
+                            virtualController.outcomeMessage,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-        // Sidebar widget, open/closed based on state
-        Sidebar(isOpen: isSidebarOpen), // Uses the Sidebar class
-        // Spacer for layout
-        const SizedBox(height: 5),
-      ]
-    ),
-  );
-}
+          // Sidebar widget, open/closed based on state
+          Sidebar(isOpen: isSidebarOpen), // Uses the Sidebar class
+          // Spacer for layout
+          const SizedBox(height: 5),
+        ],
+      ),
+    );
+  }
 }

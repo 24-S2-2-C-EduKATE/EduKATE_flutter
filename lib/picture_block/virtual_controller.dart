@@ -49,6 +49,7 @@ class VirtualController extends ChangeNotifier {
   List<VirtualTile> activeGrid = []; // The grid of tiles currently active
   bool isLoading = true; // Loading state indicator
   BlockSequence blockSequence = BlockSequence(); // Block sequence manager
+  String outcomeMessage = '';
 
   VirtualController() {
     _initializeLevels(); // Initialize levels on controller creation
@@ -97,6 +98,7 @@ class VirtualController extends ChangeNotifier {
 
     activeGrid = List.from(currentLevel!.grid); // Initialize the active grid
     _drawBaby(); // Draw the baby on the grid
+    outcomeMessage = 'Level ${currentLevel!.id} started.';
     notifyListeners(); // Notify listeners about the state change
 
     print('Reset level ${currentLevel!.id}. Baby should go position: ($babyX, $babyY)');
@@ -123,6 +125,7 @@ class VirtualController extends ChangeNotifier {
   }
 
   Future<void> endOfLevel() async {
+    outcomeMessage = 'Level Complete!';
     await playSound('assets/sounds/level_complete.wav'); 
     nextLevel(); 
     notifyListeners(); 
@@ -132,14 +135,20 @@ class VirtualController extends ChangeNotifier {
     if (currentLevel == null) return false; // Return false if there's no current level
     // Check if the new position is within the grid bounds
     if (x < 0 || x >= currentLevel!.gridN || y < 0 || y >= currentLevel!.gridN) {
+      outcomeMessage = 'Cannot move outside the grid!';
+      notifyListeners();
       return false; // Out of grid range
     }
     int index = y * currentLevel!.gridN + x; // Calculate index based on x, y
     if (index < 0 || index >= currentLevel!.grid.length) {
+      outcomeMessage = 'Invalid position!';
+      notifyListeners();
       return false; // Invalid index
     }
     String tileType = currentLevel!.grid[index].tileType; // Get the tile type at the position
     if (tileType == 'pink') {
+      outcomeMessage = 'Cannot move to pink tile!';
+      notifyListeners();
       return false; // Cannot move to pink tile
     } else if (tileType == 'start_doll') {
       await endOfLevel();
@@ -170,6 +179,7 @@ class VirtualController extends ChangeNotifier {
       babyX = newX;
       babyY = newY;
       _drawBaby(); // Redraw the baby at the new position
+      outcomeMessage = 'Moved $direction';
       notifyListeners(); // Notify listeners about the state change
       print('After move - Baby now position: ($babyX, $babyY)');
     } else {
@@ -180,16 +190,20 @@ class VirtualController extends ChangeNotifier {
   void _shakeBaby() {
     // Notify listeners is not needed as it doesn't affect UI
     // Just show Snackbar or error message
-    String errorMessage = 'Cannot move there!'; // Error message
+    // outcomeMessage = 'Cannot move there!'; // Error message
     notifyListeners(); // Notify listeners about the state change
   }
 
-  void nextLevel() {
+void nextLevel() {
     if (currentLevelIndex < levels.length - 1) {
       currentLevelIndex++; // Increment level index
       currentLevel = levels[currentLevelIndex]; // Set new current level
       _resetLevel(); // Reset the new level
+      outcomeMessage = 'Moved to Level ${currentLevel!.id}'; 
       notifyListeners(); // Notify listeners about the state change
+    } else {
+      outcomeMessage = 'You have completed all levels!'; 
+      notifyListeners();
     }
   }
 
@@ -198,7 +212,11 @@ class VirtualController extends ChangeNotifier {
       currentLevelIndex--; // Decrement level index
       currentLevel = levels[currentLevelIndex]; // Set new current level
       _resetLevel(); // Reset the new level
+      outcomeMessage = 'Moved to Level ${currentLevel!.id}';
       notifyListeners(); // Notify listeners about the state change
+    }else {
+      outcomeMessage = 'This is the first level!'; 
+      notifyListeners();
     }
   }
 
@@ -216,9 +234,12 @@ class VirtualController extends ChangeNotifier {
           await moveBaby('right'); // Move right
         case 'assets/images/sound.png':  // 声音积木
            await playSound('assets/sounds/bark.wav'); // 播放音效
+           outcomeMessage = 'Played sound!';
+           notifyListeners();
         case 'assets/images/virtual_start.png':  // Virtual start block
             print('Start running...'); // Print start message
       }
+      
       await Future.delayed(Duration(milliseconds: 500)); // Delay between moves
     }
   }

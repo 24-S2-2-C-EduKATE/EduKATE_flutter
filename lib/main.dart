@@ -75,16 +75,12 @@ class _MyHomePageState extends State<MyHomePage> {
             });
           },
         );
-        break;
       case 1:
         page = PictureBlockPage(); // Show PictureBlockPage
-        break;
       case 2:
         page = WordBlockPage(); // Show WordBlockPage
-        break;
       case 3:
         page = TextBlockPage(); // Show TextBlockPage
-        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex'); // Handle unimplemented cases
     }
