@@ -7,6 +7,8 @@ import 'block_data.dart';
 import 'dragable_block.dart';
 import 'block_helpers.dart';
 import 'command_manager.dart';
+import 'category_buttons.dart';
+import 'action_buttons.dart';
 
 class PictureBlockPage extends StatefulWidget {
   const PictureBlockPage({Key? key}) : super(key: key);
@@ -136,87 +138,46 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
   }
 
 
-@override
-Widget build(BuildContext context) {
-  // Retrieve the VirtualController instance from the Provider
-  final virtualController = Provider.of<VirtualController>(context);
+  @override
+  Widget build(BuildContext context) {
+    // Retrieve the VirtualController instance from the Provider
+    final virtualController = Provider.of<VirtualController>(context);
 
-  return Scaffold(
-    appBar: AppBar(
-      toolbarHeight: 40,
-      actions: [
-        // Row to hold the circular buttons
-        Padding(
-          padding: const EdgeInsets.only(top: 8), // Add space on top of the buttons
-          child: Row(
-            children: [
-              // Upload Button
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 198, 236, 247), // Background color
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black), // Black border
-                ),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    // Handle upload action
-                  },
-                  mini: true, // Smaller size
-                  elevation: 0, // Remove shadow
-                  hoverElevation: 0,
-                  highlightElevation: 0, // Remove highlight shadow
-                  backgroundColor: Colors.transparent, // Make background transparent to show the container color
-                  child: const Icon(Icons.pets),
-                ),
+    return Scaffold(
+      backgroundColor: Color.fromRGBO(245, 88, 144, 1),
+      appBar: AppBar(
+        backgroundColor: Color.fromRGBO(245, 88, 144, 1),
+        toolbarHeight: 60,
+        actions: [
+          // Row to hold the circular buttons
+          Padding(
+            padding: const EdgeInsets.only(left: 60.0),
+            child: Align(
+              alignment: Alignment.bottomCenter, // Align to the bottom
+              child: CategoryButtons(
+                selectedCategory: selectedCategory,
+                onUpdateCommands: updateCommands, // Pass the update function
               ),
-              const SizedBox(width: 4), // Spacing between buttons
-              // Run Button
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 198, 236, 247), // Background color
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black), // Black border
-                ),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    // Use the VirtualController instance to execute moves
-                    virtualController.executeMoves(blockSequence.getBlockOrder());
-                  },
-                  mini: true,
-                  elevation: 0, // Remove shadow
-                  hoverElevation: 0,
-                  highlightElevation: 0, // Remove highlight shadow
-                  backgroundColor: Colors.transparent, // Make background transparent to show the container color
-                  child: const Icon(Icons.play_arrow),
-                ),
-              ),
-              const SizedBox(width: 4),
-              // Stop Button
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 198, 236, 247), // Background color
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black), // Black border
-                ),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    // Handle stop action
-                    Provider.of<VirtualController>(context, listen: false).stopExecution();
-                  },
-                  mini: true,
-                  elevation: 0, // Remove shadow
-                  hoverElevation: 0,
-                  highlightElevation: 0, // Remove highlight shadow
-                  backgroundColor: Colors.transparent, // Make background transparent to show the container color
-                  child: const Icon(Icons.hexagon),
-                ),
-              ),
-              const SizedBox(width: 25),
-            ],
+            ),
           ),
-        ),
-      ],
-    ),
+          Spacer(),
+          // actions Button
+          Padding(padding: const EdgeInsets.only(top: 8.0, bottom: 8),
+            child:ActionButtons(
+              onUpload: () {
+                // Handle upload action
+              },
+              onRun: () {
+                virtualController.executeMoves(blockSequence.getBlockOrder());
+              },
+              onStop: () {
+                virtualController.stopExecution();
+              },
+            ),
+          ),
+          const SizedBox(width: 90),
+        ],
+      ),
       body: Row(
         // Main layout using a Row to organize the screen
         children: [
@@ -224,98 +185,103 @@ Widget build(BuildContext context) {
             child: Column(
               children: [
                 // above button categories and image buttons
-                CommandManager(
+                Padding(padding: const EdgeInsets.only(left: 15.0), 
+                  child:CommandManager(
                     onUpdateCommands: updateCommands,
                     commandImages: commandImages,
                   ),
+                ),
+                
                 const SizedBox(height: 10),
                 // User's area for arranging blocks
                 Expanded(
-                  child: Container(
-                    key: _containerKey, // Key to manage the container's state
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('assets/images/picGround.jpg'), // Background image
-                        fit: BoxFit.cover, // Fill mode for the background image
+                  child:Padding(padding: EdgeInsets.only(left: 15),
+                    child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: Container(
+                      key: _containerKey, // Key to manage the container's state
+                      decoration: BoxDecoration(
+                        color: Colors.white,
                       ),
-                    ),
-                    child: Stack(
-                      key: _stackKey,
-                      children: [
-                        // DragTarget for accepting new blocks
-                        DragTarget<String>( 
-                          onAcceptWithDetails: (details) {
-                            final localPosition = _getLocalPosition(details.offset); // Get local position of the dropped block
-                            setState(() {
-                              arrangedCommands.add(BlockData(
-                                imagePath: details.data, // Path of the dropped image
-                                position: localPosition, // Position to place the block
-                              ));
-                              // Update the sequence of blocks
-                              blockSequence.updateOrder(arrangedCommands);
-                              blockSequence.printBlockOrder(); // Print the current order of blocks
-                            });
-                          },
-                          builder: (context, candidateData, rejectedData) {
-                            return Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              color: Colors.transparent, // Transparent area for drag target
+                      child: Stack(
+                        key: _stackKey,
+                        children: [
+                          // DragTarget for accepting new blocks
+                          DragTarget<String>( 
+                            onAcceptWithDetails: (details) {
+                              final localPosition = _getLocalPosition(details.offset); // Get local position of the dropped block
+                              setState(() {
+                                arrangedCommands.add(BlockData(
+                                  imagePath: details.data, // Path of the dropped image
+                                  position: localPosition, // Position to place the block
+                                ));
+                                // Update the sequence of blocks
+                                blockSequence.updateOrder(arrangedCommands);
+                                blockSequence.printBlockOrder(); // Print the current order of blocks
+                              });
+                            },
+                            builder: (context, candidateData, rejectedData) {
+                              return Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                color: Colors.transparent, // Transparent area for drag target
+                              );
+                            },
+                          ),
+                          // Render the blocks that have been placed
+                          ...arrangedCommands.map((block) {
+                            return DraggableBlock(
+                              blockData: block, // Pass the block data
+                              onUpdate: _handleBlockUpdate, // Callback to handle block updates
+                              virtualController: virtualController,
+                              arrangedCommands: arrangedCommands,
                             );
-                          },
+                          }).toList(),
+                        ],
+                      ),
+                    ),
+                    ),
+                  )
+                  
+                ),
+                Consumer<VirtualController>(
+                  builder: (context, virtualController, child) {
+                    return Container(
+                      width: double.infinity, // Make the container as wide as possible
+                      padding: EdgeInsets.all(10),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(50), // Make the shape elliptical
+                        child: Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.only(top: 5.0, bottom: 5,left: 15),
+                          child: Text(
+                            virtualController.outcomeMessage,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                          ),
                         ),
-                        // Render the blocks that have been placed
-                        ...arrangedCommands.map((block) {
-                          return DraggableBlock(
-                            blockData: block, // Pass the block data
-                            onUpdate: _handleBlockUpdate, // Callback to handle block updates
-                            virtualController: virtualController,
-                            arrangedCommands: arrangedCommands,
-                          );
-                        }).toList(),
-                    ],
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Consumer<VirtualController>(
-                    builder: (context, virtualController, child) {
-                      return Container(
-                        width: double.infinity, // Make the container as wide as possible
-                        padding: EdgeInsets.all(10),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50), // Make the shape elliptical
-                          child: Container(
-                            color: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                            child: Text(
-                              virtualController.outcomeMessage,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                      ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          // Add a small column for the sidebar toggle button
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: Icon(
+                  isSidebarOpen
+                      ? Icons.arrow_circle_right // Left arrow when sidebar is open
+                      : Icons.arrow_circle_left, // Right arrow when sidebar is closed
+                    size: 30.0,
+                ),
+                onPressed: toggleSidebar,
               ),
             ],
           ),
-        ),
-        // Add a small column for the sidebar toggle button
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(
-                  isSidebarOpen
-                      ? Icons.arrow_circle_left // Left arrow when sidebar is open
-                      : Icons.arrow_circle_right, // Right arrow when sidebar is closed
-                   size: 30.0,
-                ),
-              onPressed: toggleSidebar,
-            ),
-          ],
-        ),
           // Sidebar widget, open/closed based on state
           Sidebar(isOpen: isSidebarOpen), // Uses the Sidebar class
           // Spacer for layout
