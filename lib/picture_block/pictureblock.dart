@@ -33,6 +33,34 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
     updateCommands(selectedCategory); // Load command images initially
   }
 
+  // 定义 addBlockWithDynamicWidth 方法
+  void addBlockWithDynamicWidth(String imagePath, Offset position) async {
+    // 统一高度为 85
+    double targetHeight = 85.0;
+
+    // 使用 ImageInfo 获取图片的原始尺寸
+    final Image image = Image.asset(imagePath);
+    final ImageStream stream = image.image.resolve(ImageConfiguration());
+    stream.addListener(ImageStreamListener((ImageInfo info, bool synchronousCall) {
+      // 获取图片的原始宽高
+      double originalWidth = info.image.width.toDouble();
+      double originalHeight = info.image.height.toDouble();
+
+      // 根据宽高比计算目标宽度
+      double targetWidth = (originalWidth / originalHeight) * targetHeight;
+
+      // 创建 BlockData 并将其添加到列表
+      setState(() {
+        arrangedCommands.add(BlockData(
+          imagePath: imagePath,
+          position: position,
+          width: targetWidth,   // 动态计算的宽度
+          height: targetHeight, // 统一的高度
+        ));
+      });
+    }));
+  }
+
   void updateCommands(String category) {
     setState(() {
       selectedCategory = category; // Update the selected category
@@ -210,15 +238,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                           DragTarget<String>( 
                             onAcceptWithDetails: (details) {
                               final localPosition = _getLocalPosition(details.offset); // Get local position of the dropped block
-                              setState(() {
-                                arrangedCommands.add(BlockData(
-                                  imagePath: details.data, // Path of the dropped image
-                                  position: localPosition, // Position to place the block
-                                ));
-                                // Update the sequence of blocks
-                                blockSequence.updateOrder(arrangedCommands);
-                                blockSequence.printBlockOrder(); // Print the current order of blocks
-                              });
+                              addBlockWithDynamicWidth(details.data, localPosition); 
                             },
                             builder: (context, candidateData, rejectedData) {
                               return Container(
