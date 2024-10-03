@@ -151,7 +151,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
         actions: [
           // Row to hold the circular buttons
           Padding(
-            padding: const EdgeInsets.only(left: 60.0),
+            padding: const EdgeInsets.only(left: 50.0),
             child: Align(
               alignment: Alignment.bottomCenter, // Align to the bottom
               child: CategoryButtons(
@@ -248,12 +248,12 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                   builder: (context, virtualController, child) {
                     return Container(
                       width: double.infinity, // Make the container as wide as possible
-                      padding: EdgeInsets.all(10),
+                      padding: EdgeInsets.only(top:10,bottom: 20,left:15),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(50), // Make the shape elliptical
                         child: Container(
                           color: Colors.white,
-                          padding: const EdgeInsets.only(top: 5.0, bottom: 5,left: 15),
+                          padding: const EdgeInsets.only(top: 5.0, bottom: 5),
                           child: Text(
                             virtualController.outcomeMessage,
                             textAlign: TextAlign.center,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/virtual_controller.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,7 @@ class Sidebar extends StatelessWidget {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
       width: isOpen ? 300 : 0,
-      padding: EdgeInsets.only(right: 10,bottom: 30),
+      padding: EdgeInsets.only(right: 10,bottom: 20),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(50),
         child: Drawer(
