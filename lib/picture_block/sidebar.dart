@@ -18,85 +18,110 @@ class Sidebar extends StatelessWidget {
                 builder: (context, virtualController, child) {
                   return Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Current Level: ${virtualController.currentLevel?.id ?? 'N/A'}',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
+                      SizedBox(height: 16), 
                       Expanded(
-                        child: virtualController.isLoading
-                            ? Center(child: CircularProgressIndicator())
-                            : Column(
+                        child: Column(
+                          children: [
+                            Flexible(
+                              flex: 5, // adjust the height of yellow background
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.yellow[100],
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Current Level: ${virtualController.currentLevel?.id ?? 'N/A'}',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: virtualController.isLoading
+                                            ? Center(child: CircularProgressIndicator())
+                                            : Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: AspectRatio(
+                                                  aspectRatio: 1,
+                                                  child: GridView.builder(
+                                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                                      crossAxisCount: virtualController.currentLevel!.gridN,
+                                                      childAspectRatio: 1,
+                                                    ),
+                                                    itemCount: virtualController.activeGrid.length,
+                                                    itemBuilder: (context, index) {
+                                                      return Container(
+                                                        decoration: BoxDecoration(
+                                                          border: Border.all(color: const Color.fromARGB(255, 238, 213, 113)),
+                                                        ),
+                                                        child: Image.asset(
+                                                          'assets/blocks/${virtualController.activeGrid[index].tileType}.png',
+                                                          fit: BoxFit.fill,
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Spacer(flex: 1), // the position of the previous and next
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Expanded(
-                                    child: AspectRatio(
-                                      aspectRatio: 1,
-                                      child: GridView.builder(
-                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: virtualController.currentLevel!.gridN,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                      child: ElevatedButton(
+                                        onPressed: virtualController.previousLevel,
+                                        child: const Text('Previous level', style: TextStyle(fontSize: 12)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color.fromARGB(255, 231, 152, 178),
+                                          foregroundColor: Colors.white,
+                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(15),
+                                          ),
                                         ),
-                                        itemCount: virtualController.activeGrid.length,
-                                        itemBuilder: (context, index) {
-                                          return Container(
-                                            decoration: BoxDecoration(
-                                              border: Border.all(color: const Color.fromARGB(255, 238, 213, 113)),
-                                            ),
-                                            child: Image.asset(
-                                              'assets/blocks/${virtualController.activeGrid[index].tileType}.png',
-                                              fit: BoxFit.fill,
-                                            ),
-                                          );
-                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                      child: ElevatedButton(
+                                        onPressed: virtualController.nextLevel,
+                                        child: const Text('Next level', style: TextStyle(fontSize: 12)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color.fromARGB(255, 231, 152, 178),
+                                          foregroundColor: Colors.white,
+                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(15),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
-                      ),
-                      SizedBox(height: 50), // Negative space to move buttons up
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 50.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            SizedBox(
-                              height: 40,
-                              width: 125,
-                              child: ElevatedButton(
-                                onPressed: virtualController.previousLevel,
-                                child: const Text('Previous Level', style: TextStyle(fontSize: 13)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(255, 231, 152, 178),
-                                  foregroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                ),
-                              ),
                             ),
-                            SizedBox(
-                              height: 40,
-                              width: 125, 
-                              child: ElevatedButton(
-                                onPressed: virtualController.nextLevel,
-                                child: const Text('Next Level', style: TextStyle(fontSize: 13)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(255, 231, 152, 178),
-                                  foregroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            SizedBox(height: 30), // height to the buttom
                           ],
                         ),
                       ),
