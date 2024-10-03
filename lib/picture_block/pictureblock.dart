@@ -143,75 +143,78 @@ Widget build(BuildContext context) {
 
   return Scaffold(
     appBar: AppBar(
-      title: const Text('Picture Block Page'), // Title of the AppBar
+      toolbarHeight: 40,
       actions: [
         // Row to hold the circular buttons
-        Row(
-          children: [
-            // Upload Button
-            Container(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 198, 236, 247), // Background color
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black), // Black border
+        Padding(
+          padding: const EdgeInsets.only(top: 8), // Add space on top of the buttons
+          child: Row(
+            children: [
+              // Upload Button
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 198, 236, 247), // Background color
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black), // Black border
+                ),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    // Handle upload action
+                  },
+                  mini: true, // Smaller size
+                  elevation: 0, // Remove shadow
+                  hoverElevation: 0,
+                  highlightElevation: 0, // Remove highlight shadow
+                  backgroundColor: Colors.transparent, // Make background transparent to show the container color
+                  child: const Icon(Icons.pets),
+                ),
               ),
-              child: FloatingActionButton(
-                onPressed: () {
-                  // Handle upload action
-                },
-                mini: true, // Smaller size
-                elevation: 0, // Remove shadow
-                hoverElevation: 0,
-                highlightElevation: 0, // Remove highlight shadow
-                backgroundColor: Colors.transparent, // Make background transparent to show the container color
-                child: const Icon(Icons.pets),
+              const SizedBox(width: 4), // Spacing between buttons
+              // Run Button
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 198, 236, 247), // Background color
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black), // Black border
+                ),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    // Use the VirtualController instance to execute moves
+                    virtualController.executeMoves(blockSequence.getBlockOrder());
+                  },
+                  mini: true,
+                  elevation: 0, // Remove shadow
+                  hoverElevation: 0,
+                  highlightElevation: 0, // Remove highlight shadow
+                  backgroundColor: Colors.transparent, // Make background transparent to show the container color
+                  child: const Icon(Icons.play_arrow),
+                ),
               ),
-            ),
-            const SizedBox(width: 8), // Spacing between buttons
-            // Run Button
-            Container(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 198, 236, 247), // Background color
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black), // Black border
+              const SizedBox(width: 4),
+              // Stop Button
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 198, 236, 247), // Background color
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black), // Black border
+                ),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    // Handle stop action
+                    Provider.of<VirtualController>(context, listen: false).stopExecution();
+                  },
+                  mini: true,
+                  elevation: 0, // Remove shadow
+                  hoverElevation: 0,
+                  highlightElevation: 0, // Remove highlight shadow
+                  backgroundColor: Colors.transparent, // Make background transparent to show the container color
+                  child: const Icon(Icons.hexagon),
+                ),
               ),
-              child: FloatingActionButton(
-                onPressed: () {
-                  // Use the VirtualController instance to execute moves
-                  virtualController.executeMoves(blockSequence.getBlockOrder());
-                },
-                mini: true,
-                elevation: 0, // Remove shadow
-                hoverElevation: 0,
-                highlightElevation: 0, // Remove highlight shadow
-                backgroundColor: Colors.transparent, // Make background transparent to show the container color
-                child: const Icon(Icons.play_arrow),
-              ),
-            ),
-            const SizedBox(width: 8),
-            // Stop Button
-            Container(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 198, 236, 247), // Background color
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black), // Black border
-              ),
-              child: FloatingActionButton(
-                onPressed: () {
-                  // Handle stop action
-                  Provider.of<VirtualController>(context, listen: false).stopExecution();
-                },
-                mini: true,
-                elevation: 0, // Remove shadow
-                hoverElevation: 0,
-                highlightElevation: 0, // Remove highlight shadow
-                backgroundColor: Colors.transparent, // Make background transparent to show the container color
-                child: const Icon(Icons.hexagon),
-              ),
-            ),
-          ],
+              const SizedBox(width: 25),
+            ],
+          ),
         ),
-        const SizedBox(width: 8),
       ],
     ),
       body: Row(
@@ -220,7 +223,7 @@ Widget build(BuildContext context) {
           Expanded(
             child: Column(
               children: [
-                const SizedBox(height: 10),
+                // above button categories and image buttons
                 CommandManager(
                     onUpdateCommands: updateCommands,
                     commandImages: commandImages,
@@ -284,7 +287,7 @@ Widget build(BuildContext context) {
                           borderRadius: BorderRadius.circular(50), // Make the shape elliptical
                           child: Container(
                             color: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                             child: Text(
                               virtualController.outcomeMessage,
                               textAlign: TextAlign.center,
@@ -307,7 +310,7 @@ Widget build(BuildContext context) {
                   isSidebarOpen
                       ? Icons.arrow_circle_left // Left arrow when sidebar is open
                       : Icons.arrow_circle_right, // Right arrow when sidebar is closed
-                   size: 40.0,
+                   size: 30.0,
                 ),
               onPressed: toggleSidebar,
             ),
