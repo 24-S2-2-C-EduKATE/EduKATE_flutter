@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'sidebar.dart'; // Import the Sidebar
 import 'block_data.dart';
 import 'dragable_block.dart';
+import 'block_helpers.dart';
+import 'command_manager.dart';
 
 class PictureBlockPage extends StatefulWidget {
   const PictureBlockPage({Key? key}) : super(key: key);
@@ -85,8 +87,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
 
   // Get local position within the workspace
   Offset _getLocalPosition(Offset globalPosition) {
-    final RenderBox stackRenderBox = _stackKey.currentContext!.findRenderObject() as RenderBox;
-    return stackRenderBox.globalToLocal(globalPosition); // Convert global position to local
+    return BlockHelpers.getLocalPosition(_stackKey, globalPosition);
   }
 
   // Handle the update of block connections
@@ -105,135 +106,35 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
       // Check connections with other blocks
       for (var block in arrangedCommands) {
         if (block != movedBlock) {
-          // Check top connection
-          if (_canConnect(block, movedBlock, ConnectionType.bottom)) {
-            _establishConnection(block, movedBlock, ConnectionType.bottom);
-            connected = true; // Mark as connected
+          if (BlockHelpers.canConnect(block, movedBlock, ConnectionType.bottom)) {
+            BlockHelpers.establishConnection(block, movedBlock, ConnectionType.bottom);
+            connected = true;
             break;
-          }
-          // Check bottom connection
-          else if (_canConnect(movedBlock, block, ConnectionType.bottom)) {
-            _establishConnection(movedBlock, block, ConnectionType.bottom);
+          } else if (BlockHelpers.canConnect(movedBlock, block, ConnectionType.bottom)) {
+            BlockHelpers.establishConnection(movedBlock, block, ConnectionType.bottom);
+            connected = true;
+            break;
+          } else if (BlockHelpers.canConnect(block, movedBlock, ConnectionType.right)) {
+            BlockHelpers.establishConnection(block, movedBlock, ConnectionType.right);
+            connected = true;
+            break;
+          } else if (BlockHelpers.canConnect(movedBlock, block, ConnectionType.right)) {
+            BlockHelpers.establishConnection(movedBlock, block, ConnectionType.right);
             connected = true;
             break;
           }
-          // Check left connection
-          else if (_canConnect(block, movedBlock, ConnectionType.right)) {
-            _establishConnection(block, movedBlock, ConnectionType.right);
-            connected = true;
-            break;
-          }
-          // Check right connection
-          else if (_canConnect(movedBlock, block, ConnectionType.right)) {
-            _establishConnection(movedBlock, block, ConnectionType.right);
-            connected = true;
-            break;
-          }
-          // Additional connection types can be added here
         }
       }
 
       // If no connection is made, disconnect all
       if (!connected) {
-        _disconnectAll(movedBlock);
+        BlockHelpers.disconnectAll(movedBlock);
       }
       blockSequence.updateOrder(arrangedCommands); // Update block order
       blockSequence.printBlockOrder(); // Print the order of blocks
     });
   }
 
-  // Establish a connection between two blocks
-  void _establishConnection(BlockData block1, BlockData block2, ConnectionType connectionType) {
-    // Update connection relations
-    block1.connections[connectionType] = Connection(type: connectionType, connectedBlock: block2);
-    block2.connections[_getOppositeConnectionType(connectionType)] = Connection(
-      type: _getOppositeConnectionType(connectionType),
-      connectedBlock: block1,
-    );
-
-    // Align positions based on connection type
-    switch (connectionType) {
-      case ConnectionType.top:
-        block2.position = block1.position - Offset(0, blockHeight);
-      case ConnectionType.bottom:
-        block2.position = block1.position + Offset(0, blockHeight);
-      case ConnectionType.left:
-        block2.position = block1.position - Offset(blockWidth, 0);
-      case ConnectionType.right:
-        block2.position = block1.position + Offset(blockWidth, 0);
-    }
-  }
-
-  // Disconnect all connections of a block
-  void _disconnectAll(BlockData block) {
-    for (var connectionType in block.connections.keys.toList()) {
-      var connectedBlock = block.connections[connectionType]?.connectedBlock;
-      if (connectedBlock != null) {
-        connectedBlock.connections.remove(_getOppositeConnectionType(connectionType)); // Remove opposite connection
-      }
-      block.connections.remove(connectionType); // Remove connection
-    }
-  }
-
-  // Get the opposite connection type
-  ConnectionType _getOppositeConnectionType(ConnectionType type) {
-    switch (type) {
-      case ConnectionType.top:
-        return ConnectionType.bottom;
-      case ConnectionType.bottom:
-        return ConnectionType.top;
-      case ConnectionType.left:
-        return ConnectionType.right;
-      case ConnectionType.right:
-        return ConnectionType.left;
-    }
-  }
-
-  // Define block dimensions
-  double blockWidth = 85.0; // Adjust according to actual size
-  double blockHeight = 85.0; // Adjust according to actual size
-
-  // Check if two blocks can connect
-  bool _canConnect(BlockData block1, BlockData block2, ConnectionType connectionType) {
-    double threshold = 20.0; // Distance threshold for connection
-
-    Offset position1, position2;
-
-    switch (connectionType) {
-      case ConnectionType.top:
-        position1 = block1.position;
-        position2 = block2.position + Offset(0, blockHeight);
-        break; // Add break statement to exit the switch
-      case ConnectionType.bottom:
-        position1 = block1.position + Offset(0, blockHeight);
-        position2 = block2.position;
-        break; // Add break statement to exit the switch
-      case ConnectionType.left:
-        position1 = block1.position;
-        position2 = block2.position + Offset(blockWidth, 0);
-        break; // Add break statement to exit the switch
-      case ConnectionType.right:
-        position1 = block1.position + Offset(blockWidth, 0);
-        position2 = block2.position;
-        break; // Add break statement to exit the switch
-    }
-
-    // Check distance for potential connection
-    if ((position1 - position2).distance <= threshold) {
-      // Optionally check alignment
-      if (connectionType == ConnectionType.left || connectionType == ConnectionType.right) {
-        if ((block1.position.dy - block2.position.dy).abs() <= threshold) {
-          return true; // Aligned vertically
-        }
-      } else {
-        if ((block1.position.dx - block2.position.dx).abs() <= threshold) {
-          return true; // Aligned horizontally
-        }
-      }
-    }
-
-    return false; // No connection can be established
-  }
 
 @override
 Widget build(BuildContext context) {
@@ -244,13 +145,6 @@ Widget build(BuildContext context) {
     appBar: AppBar(
       title: const Text('Picture Block Page'), // Title of the AppBar
       actions: [
-        // Button to toggle the sidebar
-        IconButton(
-          icon: const Icon(Icons.keyboard_double_arrow_right_outlined),
-          onPressed: toggleSidebar,
-        ),
-        // Spacer to push the buttons to the end
-        const SizedBox(width: 8),
         // Row to hold the circular buttons
         Row(
           children: [
@@ -312,7 +206,7 @@ Widget build(BuildContext context) {
                 hoverElevation: 0,
                 highlightElevation: 0, // Remove highlight shadow
                 backgroundColor: Colors.transparent, // Make background transparent to show the container color
-                child: const Icon(Icons.stop),
+                child: const Icon(Icons.hexagon),
               ),
             ),
           ],
@@ -320,161 +214,105 @@ Widget build(BuildContext context) {
         const SizedBox(width: 8),
       ],
     ),
-    body: Row(
-      // Main layout using a Row to organize the screen
-      children: [
-        Expanded(
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              // Row for top category buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(width: 5),
-                  // Button to load Events commands
-                  ElevatedButton(
-                    onPressed: () => updateCommands('Events'),
-                    child: const Text('Events'),
-                  ),
-                  const SizedBox(width: 5),
-                  // Button to load Virtual commands
-                  ElevatedButton(
-                    onPressed: () => updateCommands('Virtual'),
-                    child: const Text('Virtual'),
-                  ),
-                  const SizedBox(width: 5),
-                  // Button to load Actions commands
-                  ElevatedButton(
-                    onPressed: () => updateCommands('Actions'),
-                    child: const Text('Actions'),
-                  ),
-                  const SizedBox(width: 5),
-                  // Button to load Variables commands
-                  ElevatedButton(
-                    onPressed: () => updateCommands('Variables'),
-                    child: const Text('Variables'),
-                  ),
-                  const SizedBox(width: 5),
-                  // Button to load Control commands
-                  ElevatedButton(
-                    onPressed: () => updateCommands('Control'),
-                    child: const Text('Control'),
-                  ),
-                  const SizedBox(width: 5),
-                  // Button to load Sound commands
-                  ElevatedButton(
-                    onPressed: () => updateCommands('Sound'),
-                    child: const Text('Sound'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              // Area to display command images
-              SizedBox(
-                height: 85, // Fixed height for the command image area
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 8, // Number of columns in the grid
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    mainAxisExtent: 85, // Height of each grid cell
-                  ),
-                  itemCount: commandImages.length,
-                  itemBuilder: (context, index) {
-                    return Draggable<String>(
-                      data: commandImages[index], // Data to be passed on drag
-                      feedback: Material(
-                        child: SizedBox(
-                          height: 85,
-                          child: Image.asset(
-                            commandImages[index],
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      child: SizedBox(
-                        child: Image.asset(
-                          commandImages[index], // Display the command image
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-              // User's area for arranging blocks
-              Expanded(
-                child: Container(
-                  key: _containerKey, // Key to manage the container's state
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/picGround.jpg'), // Background image
-                      fit: BoxFit.cover, // Fill mode for the background image
-                    ),
-                  ),
-                  child: Stack(
-                    key: _stackKey,
-                    children: [
-                      // DragTarget for accepting new blocks
-                      DragTarget<String>( 
-                        onAcceptWithDetails: (details) {
-                          final localPosition = _getLocalPosition(details.offset); // Get local position of the dropped block
-                          setState(() {
-                            arrangedCommands.add(BlockData(
-                              imagePath: details.data, // Path of the dropped image
-                              position: localPosition, // Position to place the block
-                            ));
-                            // Update the sequence of blocks
-                            blockSequence.updateOrder(arrangedCommands);
-                            blockSequence.printBlockOrder(); // Print the current order of blocks
-                          });
-                        },
-                        builder: (context, candidateData, rejectedData) {
-                          return Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            color: Colors.transparent, // Transparent area for drag target
-                          );
-                        },
-                      ),
-                      // Render the blocks that have been placed
-                      ...arrangedCommands.map((block) {
-                        return DraggableBlock(
-                          blockData: block, // Pass the block data
-                          onUpdate: _handleBlockUpdate, // Callback to handle block updates
-                          virtualController: virtualController,
-                          arrangedCommands: arrangedCommands,
-                        );
-                      }).toList(),
-                   ],
-                    ),
-                  ),
-                ),
+      body: Row(
+        // Main layout using a Row to organize the screen
+        children: [
+          Expanded(
+            child: Column(
+              children: [
                 const SizedBox(height: 10),
-                Consumer<VirtualController>(
-                  builder: (context, virtualController, child) {
-                    return Container(
-                      width: double.infinity, // Make the container as wide as possible
-                      padding: EdgeInsets.all(10),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(50), // Make the shape elliptical
-                        child: Container(
-                          color: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                          child: Text(
-                            virtualController.outcomeMessage,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16, color: Colors.black),
-                          ),
-                        ),
+                CommandManager(
+                    onUpdateCommands: updateCommands,
+                    commandImages: commandImages,
+                  ),
+                const SizedBox(height: 10),
+                // User's area for arranging blocks
+                Expanded(
+                  child: Container(
+                    key: _containerKey, // Key to manage the container's state
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/picGround.jpg'), // Background image
+                        fit: BoxFit.cover, // Fill mode for the background image
                       ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                    ),
+                    child: Stack(
+                      key: _stackKey,
+                      children: [
+                        // DragTarget for accepting new blocks
+                        DragTarget<String>( 
+                          onAcceptWithDetails: (details) {
+                            final localPosition = _getLocalPosition(details.offset); // Get local position of the dropped block
+                            setState(() {
+                              arrangedCommands.add(BlockData(
+                                imagePath: details.data, // Path of the dropped image
+                                position: localPosition, // Position to place the block
+                              ));
+                              // Update the sequence of blocks
+                              blockSequence.updateOrder(arrangedCommands);
+                              blockSequence.printBlockOrder(); // Print the current order of blocks
+                            });
+                          },
+                          builder: (context, candidateData, rejectedData) {
+                            return Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              color: Colors.transparent, // Transparent area for drag target
+                            );
+                          },
+                        ),
+                        // Render the blocks that have been placed
+                        ...arrangedCommands.map((block) {
+                          return DraggableBlock(
+                            blockData: block, // Pass the block data
+                            onUpdate: _handleBlockUpdate, // Callback to handle block updates
+                            virtualController: virtualController,
+                            arrangedCommands: arrangedCommands,
+                          );
+                        }).toList(),
+                    ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Consumer<VirtualController>(
+                    builder: (context, virtualController, child) {
+                      return Container(
+                        width: double.infinity, // Make the container as wide as possible
+                        padding: EdgeInsets.all(10),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50), // Make the shape elliptical
+                          child: Container(
+                            color: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                            child: Text(
+                              virtualController.outcomeMessage,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 16, color: Colors.black),
+                            ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
+        ),
+        // Add a small column for the sidebar toggle button
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: Icon(
+                  isSidebarOpen
+                      ? Icons.arrow_circle_left // Left arrow when sidebar is open
+                      : Icons.arrow_circle_right, // Right arrow when sidebar is closed
+                   size: 40.0,
+                ),
+              onPressed: toggleSidebar,
+            ),
+          ],
+        ),
           // Sidebar widget, open/closed based on state
           Sidebar(isOpen: isSidebarOpen), // Uses the Sidebar class
           // Spacer for layout
