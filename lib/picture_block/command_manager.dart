@@ -47,7 +47,7 @@ Widget build(BuildContext context) {
           itemCount: widget.commandImages.length, // Assuming commandImages is the list of images
           itemBuilder: (context, index) {
             return Padding(
-              padding: const EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(right: 25),
               child: Draggable<BlockWithImage>(
                 data: widget.commandImages[index],
                 feedback: Material(

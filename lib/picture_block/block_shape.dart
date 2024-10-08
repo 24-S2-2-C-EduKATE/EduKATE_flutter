@@ -60,8 +60,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
 
     } else if (blockData.blockShape == Shape.action) {  // Condition for drawing 'action' shaped block.
       paint.color = const Color.fromARGB(255, 184, 117, 196);  // Set color for 'action' block.
-      path.moveTo(0, cornerRadius);  // Start drawing similar to 'virtual' block.
-      // Same shape drawing logic as for 'virtual' block (reused for 'action' block).
+      path.moveTo(0, cornerRadius);  // Start path at the top-left corner with a rounded corner.
       path.quadraticBezierTo(0, 0, cornerRadius, 0);  // Draw top-left rounded corner.
       path.lineTo(size.width - cornerRadius, 0);  // Draw top edge.
       path.quadraticBezierTo(size.width, 0, size.width, cornerRadius);  // Draw top-right rounded corner.
@@ -100,16 +99,23 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       
     } else if (blockData.blockShape == Shape.event1) {  // Condition for drawing 'event1' shaped block.
       paint.color = Colors.orange;  // Set color for 'event1' block.
-      path.moveTo(0, cornerRadius);  // Start drawing the block.
-      // Shape drawing logic for 'event1'.
-      path.moveTo(0, cornerRadius);
-      path.quadraticBezierTo(0, 0, cornerRadius, 0);
-      path.lineTo(size.width - cornerRadius, 0);
-      path.quadraticBezierTo(size.width, 0, size.width, cornerRadius);
-      path.lineTo(size.width, size.height - cornerRadius);
-      path.quadraticBezierTo(size.width, size.height, size.width - cornerRadius, size.height);
-      path.lineTo(cornerRadius, size.height);
-      path.quadraticBezierTo(0, size.height, 0, size.height - cornerRadius);
+
+      // Start from the top-left point of the half-circle
+      path.moveTo(0, cornerRadius);  // Start at the top-left corner.
+      // Draw a complete half-circle on the left side
+      path.arcTo(
+       Rect.fromCircle(center: Offset(30, size.height / 2), radius: size.height/2),  // Define the bounding box for the half-circle
+       -1.5 * 3.14,  // Start the arc from the top (-90 degrees in radians)
+       3.14,  // Sweep the arc 180 degrees (half-circle)
+       false,  // Don't force moveTo to the arc start point
+        );
+
+      path.lineTo(size.width - cornerRadius, 0);  // Draw top edge.
+      path.quadraticBezierTo(size.width, 0, size.width, cornerRadius);  // Draw top-right rounded corner.
+      path.lineTo(size.width, size.height - cornerRadius);  // Draw right edge.
+      path.quadraticBezierTo(size.width, size.height, size.width - cornerRadius, size.height);  // Draw bottom-right rounded corner.
+      path.lineTo(30, size.height);  // Draw bottom edge.
+      path.quadraticBezierTo(15, size.height, 0, size.height - cornerRadius);  // Draw bottom-left rounded corner to complete the path.
       path.close();
 
       path.addRect(Rect.fromLTWH(size.width, (size.height - size.height * 1 / 4) / 2, 6, size.height * 1 / 4));
@@ -123,16 +129,21 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       
     } else if (blockData.blockShape == Shape.event2) {  // Condition for drawing 'event2' shaped block.
       paint.color = const Color.fromARGB(255, 249, 123, 165);  // Set color for 'event2' block.
-      path.moveTo(0, cornerRadius);  // Start drawing the block.
-      // Shape drawing logic for 'event2'.
-      path.moveTo(0, cornerRadius);
-      path.quadraticBezierTo(0, 0, cornerRadius, 0);
-      path.lineTo(size.width - cornerRadius, 0);
-      path.quadraticBezierTo(size.width, 0, size.width, cornerRadius);
-      path.lineTo(size.width, size.height - cornerRadius);
-      path.quadraticBezierTo(size.width, size.height, size.width - cornerRadius, size.height);
-      path.lineTo(cornerRadius, size.height);
-      path.quadraticBezierTo(0, size.height, 0, size.height - cornerRadius);
+      path.moveTo(0, cornerRadius);  // Start at the top-left corner.
+      // Draw a complete half-circle on the left side
+      path.arcTo(
+       Rect.fromCircle(center: Offset(30, size.height / 2), radius: size.height/2),  // Define the bounding box for the half-circle
+       -1.5 * 3.14,  // Start the arc from the top (-90 degrees in radians)
+       3.14,  // Sweep the arc 180 degrees (half-circle)
+       false,  // Don't force moveTo to the arc start point
+        );
+
+      path.lineTo(size.width - cornerRadius, 0);  // Draw top edge.
+      path.quadraticBezierTo(size.width, 0, size.width, cornerRadius);  // Draw top-right rounded corner.
+      path.lineTo(size.width, size.height - cornerRadius);  // Draw right edge.
+      path.quadraticBezierTo(size.width, size.height, size.width - cornerRadius, size.height);  // Draw bottom-right rounded corner.
+      path.lineTo(30, size.height);  // Draw bottom edge.
+      path.quadraticBezierTo(15, size.height, 0, size.height - cornerRadius);  // Draw bottom-left rounded corner to complete the path.
       path.close();
 
       path.addRect(Rect.fromLTWH(size.width, (size.height - size.height * 1 / 4) / 2, 6, size.height * 1 / 4));
@@ -186,11 +197,14 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       
     } else if (blockData.blockShape == Shape.variable2) {  // Condition for drawing 'variable2' shaped block.
       paint.color = const Color.fromARGB(255, 92, 190, 95);  // Set color for 'variable2' block.
-      path.moveTo(0, 0);  // Draw a simple rectangular block.
-      path.lineTo(size.width, 0);  // Top edge.
-      path.lineTo(size.width, size.height);  // Right edge.
-      path.lineTo(0, size.height);  // Bottom edge.
-      path.close();  // Close the rectangle.
+      path.moveTo(0, cornerRadius);
+      path.quadraticBezierTo(0, 0, cornerRadius, 0);
+      path.lineTo(size.width - cornerRadius, 0);
+      path.quadraticBezierTo(size.width, 0, size.width, cornerRadius);
+      path.lineTo(size.width, size.height - cornerRadius);
+      path.quadraticBezierTo(size.width, size.height, size.width - cornerRadius, size.height);
+      path.lineTo(cornerRadius, size.height);
+      path.quadraticBezierTo(0, size.height, 0, size.height - cornerRadius);
       
     } else if (blockData.blockShape == Shape.control) {  // Condition for drawing 'control' shaped block.
       paint.color = const Color.fromARGB(255, 239, 175, 151);  // Set color for 'control' block.
