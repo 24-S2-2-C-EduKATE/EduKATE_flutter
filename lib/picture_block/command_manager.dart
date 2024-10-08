@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/picture_block/block_data.dart';
+import 'package:flutter_application_1/picture_block/block_shape.dart';
+import 'package:flutter_application_1/picture_block/category_buttons.dart';
+import 'package:flutter_application_1/picture_block/dragable_block.dart';
+import 'package:flutter_application_1/picture_block/pictureblock.dart';
+
+class BlockWithImage {
+  final String imagePath;
+  final Shape shape;
+
+  BlockWithImage({required this.imagePath, required this.shape});
+}
 
 class CommandManager extends StatefulWidget {
-  final Function(String) onUpdateCommands; // Callback for updating commands
-  final List<String> commandImages; // List to hold command images
-
+  final List<BlockWithImage> commandImages; // List to hold command images
+  
   const CommandManager({
     Key? key,
-    required this.onUpdateCommands,
     required this.commandImages,
   }) : super(key: key);
 
@@ -15,60 +25,103 @@ class CommandManager extends StatefulWidget {
 }
 
 class _CommandManagerState extends State<CommandManager> {
+  List<BlockWithImage> commandImages = []; // List to hold command images
   String selectedCategory = 'Events'; // Default selected category
 
-  void updateCommands(String category) {
-    setState(() {
-      selectedCategory = category; // Update the selected category
-    });
-    widget.onUpdateCommands(category);
-  }
-
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Removed buttons from here
-        // Area to display command images
-        Container(
-          height: 90,
-          decoration: BoxDecoration(
-            color: Color.fromARGB(255, 198, 236, 247),
-            borderRadius: BorderRadius.circular(50),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.commandImages.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: Draggable<String>(
-                  data: widget.commandImages[index],
-                  feedback: Material(
-                    child: SizedBox(
-                      height: 85,
-                      child: Image.asset(
-                        widget.commandImages[index],
-                        fit: BoxFit.contain,
-                        height: 85,
-                      ),
-                    ),
-                  ),
+ void initState() {
+  super.initState();
+  // Automatically load the 'Events' category when the widget is initialized
+}
+
+@override
+Widget build(BuildContext context) {
+  return Column(
+    children: [
+      Container(
+        height: 100,
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 198, 236, 247), // Inner container background color
+          borderRadius: BorderRadius.circular(50), // Rounded corners for the inner container
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0), // Padding
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: widget.commandImages.length, // Assuming commandImages is the list of images
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: Draggable<BlockWithImage>(
+                data: widget.commandImages[index],
+                feedback: Material(
+                  color: Colors.transparent,
                   child: SizedBox(
-                    height: 85,
-                    child: Image.asset(
-                      widget.commandImages[index],
-                      fit: BoxFit.contain,
-                      height: 85,
+                    height: 65,
+                    width: 65, // Added width to maintain aspect ratio for shapes
+                    child: Stack(
+                      children: [
+                        // Paint the block shape first
+                        CustomPaint(
+                          size: Size(65, 65), // Size for each block
+                          painter: BlockShapePainter(
+                            BlockData(
+                              blockShape: widget.commandImages[index].shape, // Provide a valid Shape object here
+                              imagePath: widget.commandImages[index].imagePath, // Provide imagePath
+                              position: Offset(0, 0), // Provide a default position
+                            ),
+                          ),
+                        ),
+                        // Then overlay the image on top of the shape
+                        Positioned(
+                          left: 16, // Custom left position
+                          top: 13,  // Custom top position
+                          child: Image.asset(
+                            widget.commandImages[index].imagePath,
+                            width: 40,  // Custom width
+                            height: 40, // Custom height
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              );
-            },
-          ),
+                child: SizedBox(
+                  height: 65,
+                  width: 65,
+                  child: Stack(
+                    children: [
+                      // Paint the block shape first
+                      CustomPaint(
+                        size: Size(65, 65), // Size for each block
+                        painter: BlockShapePainter(
+                          BlockData(
+                            blockShape: widget.commandImages[index].shape,  // Provide a valid Shape object here
+                            imagePath: widget.commandImages[index].imagePath, // Provide imagePath
+                            position: Offset(0, 0), // Provide a default position
+                          ),
+                        ),
+                      ),
+                      // Then overlay the image on top of the shape
+                      Positioned(
+                        left: 16, // Custom left position
+                        top: 13,  // Custom top position
+                        child: Image.asset(
+                          widget.commandImages[index].imagePath,
+                          width: 40,  // Custom width
+                          height: 40, // Custom height
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 }

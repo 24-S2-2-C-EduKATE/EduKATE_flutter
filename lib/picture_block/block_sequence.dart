@@ -1,5 +1,4 @@
 // block_sequence.dart
-// block_sequence.dart
 import 'package:flutter_application_1/picture_block/block_data.dart';
 import 'package:flutter_application_1/picture_block/virtual_controller.dart';
 import 'dart:ui';
@@ -48,8 +47,7 @@ class BlockSequence {
   BlockData? _findFirstBlock(List<BlockData> arrangedCommands) {
     for (var block in arrangedCommands) {
       // Ensure the top or left of the block is not connected to any other blocks
-      if (block.connections[ConnectionType.top]?.connectedBlock == null &&
-          block.connections[ConnectionType.left]?.connectedBlock == null) {
+      if (block.connections[ConnectionType.left]?.connectedBlock == null) {
             if (block.imagePath == 'assets/images/start_virtual.png') {
               return block; // Return the first block if it's the virtual start block
             }
@@ -65,8 +63,7 @@ class BlockSequence {
   void _addToOrder(BlockData block) {
     addBlock(block); // Add the current block to the order
     // Find the next connected block either below or to the right
-    var nextBlock = block.connections[ConnectionType.bottom]?.connectedBlock ?? 
-                    block.connections[ConnectionType.right]?.connectedBlock;
+    var nextBlock = block.connections[ConnectionType.right]?.connectedBlock;
     
     // If there is a next block, recursively add it
     if (nextBlock != null) {

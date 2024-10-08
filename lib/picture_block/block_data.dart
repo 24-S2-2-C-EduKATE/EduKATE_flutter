@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 enum ConnectionType {
-  top,
-  bottom,
   left,
   right,
+}
+
+enum Shape {
+  virtual,
+  event1,
+  event2,
+  action,
+  variable1,
+  control,
+  sound,
+  variable2
+  // another shape
 }
 
 class Connection {
@@ -15,17 +25,15 @@ class Connection {
 }
 
 class BlockData {
+  final Shape blockShape;
   String id; 
   String imagePath;
   Offset position;
-  double width;  // 添加宽度
-  double height; // 添加高度
   Map<ConnectionType, Connection> connections = {};
 
   BlockData({
+    required this.blockShape,
     required this.imagePath,
     required this.position,
-    required this.width,  // 添加宽度参数
-    required this.height,
   }): id = Uuid().v4();
 }

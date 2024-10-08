@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/picture_block/block_shape.dart';
 import 'block_data.dart';
 import 'package:flutter_application_1/picture_block/virtual_controller.dart';
 
@@ -46,13 +47,11 @@ class _DraggableBlockState extends State<DraggableBlock> {
       top: _offset.dy,  // Set vertical position
       child: GestureDetector(
         onTap: () {
-        // 找到当前积木块的索引
+        // Find the index of the current block
         int currentIndex = widget.arrangedCommands.indexOf(widget.blockData);
-  
-        // 从当前积木块开始的所有积木块
+        // Get all blocks starting from the current block
         List<BlockData> remainingBlocks = widget.arrangedCommands.sublist(currentIndex);
-
-        // 传递剩余积木块给 executeMoves 方法
+        // Pass remaining blocks to the executeMoves method
         widget.virtualController.executeMoves(remainingBlocks);
 
        },
@@ -74,9 +73,26 @@ class _DraggableBlockState extends State<DraggableBlock> {
             widget.onUpdate(widget.blockData); // Or call a deletion function
           }
         },
-        child: Image.asset(
-          widget.blockData.imagePath, // Display the block image
-          height: 85, // Set height of the block image
+        child: SizedBox(
+          width: 65,  // Block size
+          height: 65,
+          child: CustomPaint(
+            painter: BlockShapePainter(widget.blockData),
+            child: Stack( 
+      children: [
+        Positioned(
+          left: 16, 
+          top: 13,  
+          child: Image.asset(
+            widget.blockData.imagePath,
+            width: 40,  // Set image width
+            height: 40, // Set image height
+            fit: BoxFit.contain,
+          ),
+        ),
+      ],
+      ),
+        ),
         ),
       ),
     );

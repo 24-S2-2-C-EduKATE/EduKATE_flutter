@@ -1,9 +1,11 @@
 // block_helpers.dart
 
 import 'package:flutter/material.dart';
-import 'block_data.dart'; // 确保 BlockData 和 ConnectionType 被导入
+import 'block_data.dart'; 
 
 class BlockHelpers {
+  static double blockWidth = 65.0; // Adjust according to actual size
+  static double blockHeight = 65.0; // Adjust according to actual size
 
   // Get local position within the workspace
   static Offset getLocalPosition(GlobalKey stackKey, Offset globalPosition) {
@@ -18,20 +20,12 @@ class BlockHelpers {
     Offset position1, position2;
 
     switch (connectionType) {
-    case ConnectionType.top:
-      position1 = block1.position;
-      position2 = block2.position + Offset(0, block2.height); // 使用 block2 的高度
-      break;
-    case ConnectionType.bottom:
-      position1 = block1.position + Offset(0, block1.height); // 使用 block1 的高度
-      position2 = block2.position;
-      break;
     case ConnectionType.left:
       position1 = block1.position;
-      position2 = block2.position + Offset(block2.width + 26.5, 0); // 使用 block2 的宽度
+      position2 = block2.position + Offset(blockWidth, 0); 
       break;
     case ConnectionType.right:
-      position1 = block1.position + Offset(block1.width - 26.5, 0); // 使用 block1 的宽度
+      position1 = block1.position + Offset(blockWidth, 0); 
       position2 = block2.position;
       break;
     default:
@@ -66,17 +60,11 @@ class BlockHelpers {
 
     // Align positions based on connection type
      switch (connectionType) {
-    case ConnectionType.top:
-      block2.position = block1.position - Offset(0, block2.height); // 上方对齐
-      break;
-    case ConnectionType.bottom:
-      block2.position = block1.position + Offset(0, block1.height); // 下方对齐
-      break;
     case ConnectionType.left:
-      block2.position = block1.position - Offset(block2.width + 26.5, 0); // 左侧对齐
+      block2.position = block1.position - Offset(blockWidth, 0);
       break;
     case ConnectionType.right:
-      block2.position = block1.position + Offset(block1.width - 26.5, 0); // 右侧对齐
+      block2.position = block1.position + Offset(blockWidth, 0);
       break;
   }
   }
@@ -95,10 +83,6 @@ class BlockHelpers {
   // Get the opposite connection type
   static ConnectionType getOppositeConnectionType(ConnectionType type) {
     switch (type) {
-      case ConnectionType.top:
-        return ConnectionType.bottom;
-      case ConnectionType.bottom:
-        return ConnectionType.top;
       case ConnectionType.left:
         return ConnectionType.right;
       case ConnectionType.right:

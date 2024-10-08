@@ -18,7 +18,7 @@ class PictureBlockPage extends StatefulWidget {
 }
 
 class _PictureBlockPageState extends State<PictureBlockPage> {
-  List<String> commandImages = []; // List to hold the command image paths
+  List<BlockWithImage> commandImage = [];
   List<BlockData> arrangedCommands = []; // List to hold the arranged blocks
   String selectedCategory = 'Events'; // Default category for command images
   bool isSidebarOpen = false; // State to control sidebar visibility
@@ -30,82 +30,71 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
   @override
   void initState() {
     super.initState();
-    updateCommands(selectedCategory); // Load command images initially
+    updateCommands(selectedCategory);
   }
 
-  // 定义 addBlockWithDynamicWidth 方法
-  void addBlockWithDynamicWidth(String imagePath, Offset position) async {
-    // 统一高度为 85
-    double targetHeight = 85.0;
+  // Method to update command images based on selected category
+ void updateCommands(String category) {
+  setState(() {
+    selectedCategory = category;
+    commandImage.clear(); // Clear previous command images
+    if (category == 'Events') {
+      commandImage = [
+        BlockWithImage(imagePath: 'assets/images/start_virtual.png', shape: Shape.event1),
+        BlockWithImage(imagePath: 'assets/images/start_physical.png', shape: Shape.event2),
+        BlockWithImage(imagePath: 'assets/images/back_sensor.png', shape: Shape.event2),
+        BlockWithImage(imagePath: 'assets/images/belly_sensor.png', shape: Shape.event2),
+        BlockWithImage(imagePath: 'assets/images/nose_sensor.png', shape: Shape.event2),
+      ];
+    } else if (category == 'Virtual') {
+      commandImage = [
+        BlockWithImage(imagePath: 'assets/images/move_up.png', shape: Shape.virtual),
+        BlockWithImage(imagePath: 'assets/images/move_down.png', shape: Shape.virtual),
+        BlockWithImage(imagePath: 'assets/images/move_left.png', shape: Shape.virtual),
+        BlockWithImage(imagePath: 'assets/images/move_right.png', shape: Shape.virtual),
+      ];
+    } else if (category == 'Actions') {
+      commandImage = [
+        BlockWithImage(imagePath: 'assets/images/sit.png', shape: Shape.action),
+        BlockWithImage(imagePath: 'assets/images/lay_down.png', shape: Shape.action),
+        BlockWithImage(imagePath: 'assets/images/stand.png', shape: Shape.action),
+        BlockWithImage(imagePath: 'assets/images/play_dead.png', shape: Shape.action),
+        BlockWithImage(imagePath: 'assets/images/bow.png', shape: Shape.action),
+        BlockWithImage(imagePath: 'assets/images/beg.png', shape: Shape.action),
+        BlockWithImage(imagePath: 'assets/images/howl.png', shape: Shape.action),
+        BlockWithImage(imagePath: 'assets/images/wag_tail.png', shape: Shape.action),
+      ];
+    } else if (category == 'Variables') {
+      commandImage = [
+        BlockWithImage(imagePath: 'assets/images/walk.png', shape: Shape.variable1),
+        BlockWithImage(imagePath: 'assets/images/turn.png', shape: Shape.variable1),
+        BlockWithImage(imagePath: 'assets/images/lift_left.png', shape: Shape.variable1),
+        BlockWithImage(imagePath: 'assets/images/eyes.png', shape: Shape.variable1),
+        BlockWithImage(imagePath: 'assets/images/mouth.png', shape: Shape.variable1),
+        BlockWithImage(imagePath: 'assets/images/forwards.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/backwards.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/right.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/left.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/front_left_leg.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/front_right_leg.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/back_left_leg.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/back_right_leg.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/open.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/closed.png', shape: Shape.variable2),
+      ];
+    } else if (category == 'Control') {
+      commandImage = [
+        BlockWithImage(imagePath: 'assets/images/wait.png', shape: Shape.control),
+      ];
+    }
+  });
+}
 
-    // 使用 ImageInfo 获取图片的原始尺寸
-    final Image image = Image.asset(imagePath);
-    final ImageStream stream = image.image.resolve(ImageConfiguration());
-    stream.addListener(ImageStreamListener((ImageInfo info, bool synchronousCall) {
-      // 获取图片的原始宽高
-      double originalWidth = info.image.width.toDouble();
-      double originalHeight = info.image.height.toDouble();
-
-      // 根据宽高比计算目标宽度
-      double targetWidth = (originalWidth / originalHeight) * targetHeight;
-
-      // 创建 BlockData 并将其添加到列表
-      setState(() {
-        arrangedCommands.add(BlockData(
-          imagePath: imagePath,
-          position: position,
-          width: targetWidth,   // 动态计算的宽度
-          height: targetHeight, // 统一的高度
-        ));
-      });
-    }));
-  }
-
-  void updateCommands(String category) {
+  // Method to update arranged commands from CommandManager
+  void _updateArrangedCommands(List<BlockData> commands) {
     setState(() {
-      selectedCategory = category; // Update the selected category
-      // Load command images based on the selected category
-      if (category == 'Events') {
-        commandImages = [
-          'assets/images/follow.jpg',
-          'assets/images/lift_leg.jpg',
-          'assets/images/noseButton.jpg',
-          'assets/images/sound.png',
-          'assets/images/start.jpg',
-          'assets/images/wait.jpg',
-          'assets/images/cry.jpg',
-          'assets/images/right.jpg',
-        ];
-      } else if (category == 'Virtual') {
-        commandImages = [
-          'assets/images/start_virtual.png',
-          'assets/images/move_up.png',
-          'assets/images/move_down.png',
-          'assets/images/move_left.png',
-          'assets/images/move_right.png',
-        ];
-      } else if (category == 'Actions') {
-        commandImages = [
-          'assets/images/lift_leg.jpg', // Example image
-          'assets/images/sound.png',
-        ];
-      }else if (category == 'Variables') {
-        commandImages = [
-          'assets/images/lift_leg.jpg', // Example image
-          'assets/images/sound.png',
-        ];
-      }else if (category == 'Control') {
-        commandImages = [
-          'assets/images/lift_leg.jpg', // Example image
-          'assets/images/sound.png',
-        ];
-      }else if (category == 'Sound') {
-        commandImages = [
-          'assets/images/lift_leg.jpg', // Example image
-          'assets/images/sound.png',
-        ];
-      }
-      // More categories can be added here
+      arrangedCommands = commands; // Update the arranged commands
+      blockSequence.updateOrder(arrangedCommands); // Update block order
     });
   }
 
@@ -135,16 +124,8 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
 
       // Check connections with other blocks
       for (var block in arrangedCommands) {
-        if (block != movedBlock) {
-          if (BlockHelpers.canConnect(block, movedBlock, ConnectionType.bottom)) {
-            BlockHelpers.establishConnection(block, movedBlock, ConnectionType.bottom);
-            connected = true;
-            break;
-          } else if (BlockHelpers.canConnect(movedBlock, block, ConnectionType.bottom)) {
-            BlockHelpers.establishConnection(movedBlock, block, ConnectionType.bottom);
-            connected = true;
-            break;
-          } else if (BlockHelpers.canConnect(block, movedBlock, ConnectionType.right)) {
+        if (block != movedBlock){ 
+          if (BlockHelpers.canConnect(block, movedBlock, ConnectionType.right)) {
             BlockHelpers.establishConnection(block, movedBlock, ConnectionType.right);
             connected = true;
             break;
@@ -165,8 +146,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
     });
   }
 
-
-  @override
+@override
   Widget build(BuildContext context) {
     // Retrieve the VirtualController instance from the Provider
     final virtualController = Provider.of<VirtualController>(context);
@@ -215,8 +195,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                 // above button categories and image buttons
                 Padding(padding: const EdgeInsets.only(left: 15.0), 
                   child:CommandManager(
-                    onUpdateCommands: updateCommands,
-                    commandImages: commandImages,
+            commandImages: commandImage,
                   ),
                 ),
                 
@@ -235,10 +214,18 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                         key: _stackKey,
                         children: [
                           // DragTarget for accepting new blocks
-                          DragTarget<String>( 
+                          DragTarget<BlockWithImage>(
                             onAcceptWithDetails: (details) {
-                              final localPosition = _getLocalPosition(details.offset); // Get local position of the dropped block
-                              addBlockWithDynamicWidth(details.data, localPosition); 
+                              final localPosition = _getLocalPosition(details.offset);
+                              setState(() {
+                                arrangedCommands.add(BlockData(
+                                  imagePath: details.data.imagePath,
+                                  position: localPosition,
+                                  blockShape: details.data.shape,
+                                ));
+                                blockSequence.updateOrder(arrangedCommands);
+                                blockSequence.printBlockOrder();
+                              });
                             },
                             builder: (context, candidateData, rejectedData) {
                               return Container(
