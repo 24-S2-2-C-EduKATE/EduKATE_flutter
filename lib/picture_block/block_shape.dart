@@ -20,7 +20,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
     double cornerRadius = 20.0;  // Corner radius for rounded shapes.
 
     if (blockData.blockShape == Shape.virtual) {  // Condition for drawing 'virtual' shaped block.
-      paint.color = Colors.yellow;  // Set the color to yellow.
+      paint.color = const Color.fromARGB(255, 248, 231, 81);  // Set the color to yellow.
       path.moveTo(0, cornerRadius);  // Start path at the top-left corner with a rounded corner.
       path.quadraticBezierTo(0, 0, cornerRadius, 0);  // Draw top-left rounded corner.
       path.lineTo(size.width - cornerRadius, 0);  // Draw top edge.
@@ -59,7 +59,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       ));
 
     } else if (blockData.blockShape == Shape.action) {  // Condition for drawing 'action' shaped block.
-      paint.color = const Color.fromARGB(255, 199, 112, 214);  // Set color for 'action' block.
+      paint.color = const Color.fromARGB(255, 184, 117, 196);  // Set color for 'action' block.
       path.moveTo(0, cornerRadius);  // Start drawing similar to 'virtual' block.
       // Same shape drawing logic as for 'virtual' block (reused for 'action' block).
       path.quadraticBezierTo(0, 0, cornerRadius, 0);  // Draw top-left rounded corner.
@@ -122,7 +122,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       ));
       
     } else if (blockData.blockShape == Shape.event2) {  // Condition for drawing 'event2' shaped block.
-      paint.color = Colors.pink;  // Set color for 'event2' block.
+      paint.color = const Color.fromARGB(255, 249, 123, 165);  // Set color for 'event2' block.
       path.moveTo(0, cornerRadius);  // Start drawing the block.
       // Shape drawing logic for 'event2'.
       path.moveTo(0, cornerRadius);
@@ -193,7 +193,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       path.close();  // Close the rectangle.
       
     } else if (blockData.blockShape == Shape.control) {  // Condition for drawing 'control' shaped block.
-      paint.color = const Color.fromARGB(255, 233, 143, 110);  // Set color for 'control' block.
+      paint.color = const Color.fromARGB(255, 239, 175, 151);  // Set color for 'control' block.
       path.moveTo(0, cornerRadius);  // Start drawing the block.
       // Shape drawing logic for 'control'.
       path.quadraticBezierTo(0, 0, cornerRadius, 0);  // Draw top-left rounded corner.

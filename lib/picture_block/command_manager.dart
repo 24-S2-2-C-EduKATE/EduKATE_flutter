@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/block_data.dart';
 import 'package:flutter_application_1/picture_block/block_shape.dart';
-import 'package:flutter_application_1/picture_block/category_buttons.dart';
-import 'package:flutter_application_1/picture_block/dragable_block.dart';
-import 'package:flutter_application_1/picture_block/pictureblock.dart';
 
 class BlockWithImage {
   final String imagePath;
@@ -44,7 +41,7 @@ Widget build(BuildContext context) {
           color: Color.fromARGB(255, 198, 236, 247), // Inner container background color
           borderRadius: BorderRadius.circular(50), // Rounded corners for the inner container
         ),
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0), // Padding
+        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0), // Padding
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: widget.commandImages.length, // Assuming commandImages is the list of images

@@ -1,6 +1,5 @@
 // category_buttons.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/picture_block/block_data.dart';
 
 class CategoryButtons extends StatelessWidget {
   final String selectedCategory;

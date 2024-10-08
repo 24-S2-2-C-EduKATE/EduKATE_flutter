@@ -1,7 +1,5 @@
 // action_buttons.dart
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'virtual_controller.dart'; 
+import 'package:flutter/material.dart'; 
 
 class ActionButtons extends StatelessWidget {
   final Function() onUpload;
@@ -17,7 +15,6 @@ class ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final virtualController = Provider.of<VirtualController>(context);
 
     return Row(
       children: [

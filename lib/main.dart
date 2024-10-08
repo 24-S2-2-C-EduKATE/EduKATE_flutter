@@ -144,8 +144,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>(); // Watch the MyAppState
-    var pair = appState.current; // Get the current word pair
 
     return Center(
       child: Column(

@@ -1,7 +1,5 @@
 // block_sequence.dart
 import 'package:flutter_application_1/picture_block/block_data.dart';
-import 'package:flutter_application_1/picture_block/virtual_controller.dart';
-import 'dart:ui';
 
 class BlockSequence {
   // List to hold the order of blocks
