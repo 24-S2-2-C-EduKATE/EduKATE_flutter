@@ -1,6 +1,6 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/picture_block/virtual_controller.dart';
+import 'package:flutter_application_1/picture_block/interaction/virtual_controller.dart';
 import 'package:provider/provider.dart';
 import 'picture_block/pictureblock.dart'; // Import PictureBlockPage
 import 'wordblock.dart'; 

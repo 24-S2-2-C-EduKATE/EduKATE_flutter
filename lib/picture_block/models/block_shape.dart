@@ -1,6 +1,6 @@
 import 'dart:ui';  
 import 'package:flutter/material.dart';  
-import 'package:flutter_application_1/picture_block/block_data.dart';  
+import 'package:flutter_application_1/picture_block/models/block_data.dart';  
 
 class BlockShapePainter extends CustomPainter {  // CustomPainter class for drawing shapes.
   final BlockData blockData;  

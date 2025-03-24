@@ -1,7 +1,7 @@
 // block_helpers.dart
 
 import 'package:flutter/material.dart';
-import 'block_data.dart'; 
+import '../models/block_data.dart'; 
 
 class BlockHelpers {
   static double blockWidth = 65.0; // Adjust according to actual size
@@ -23,11 +23,9 @@ class BlockHelpers {
     case ConnectionType.left:
       position1 = block1.position;
       position2 = block2.position + Offset(blockWidth, 0); 
-      break;
     case ConnectionType.right:
       position1 = block1.position + Offset(blockWidth, 0); 
       position2 = block2.position;
-      break;
     default:
       return false;
   }
@@ -62,10 +60,8 @@ class BlockHelpers {
      switch (connectionType) {
     case ConnectionType.left:
       block2.position = block1.position - Offset(blockWidth, 0);
-      break;
     case ConnectionType.right:
       block2.position = block1.position + Offset(blockWidth, 0);
-      break;
   }
   }
 

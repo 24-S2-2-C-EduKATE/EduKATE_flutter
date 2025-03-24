@@ -1,44 +1,14 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter_application_1/picture_block/block_data.dart';
+import 'package:flutter_application_1/picture_block/models/block_data.dart';
 import 'dart:async';
 
-import 'package:flutter_application_1/picture_block/block_sequence.dart';
+import 'package:flutter_application_1/picture_block/interaction/block_sequence.dart';
 import 'package:provider/provider.dart';
+import '../models/level.dart';
+import '../models/virtual_tile.dart';
 
-class VirtualTile {
-  final int index; // Index of the tile in the grid
-  final String tileType; // Type of the tile
-
-  VirtualTile(this.index, this.tileType); // Constructor
-}
-
-class Level {
-  final int id;
-  final int gridN;
-  final List<VirtualTile> grid;
-  final int dollStartX;
-  final int dollStartY;
-
-  Level(this.id, this.gridN, this.grid, this.dollStartX, this.dollStartY);
-
-  static Future<Level> create(int id, int startX, int startY) async {
-    String content = await rootBundle.loadString('assets/levels/level_$id.txt');
-    List<String> lines = content.trim().split('\n');
-    int gridN = lines.length; // get gridN
-    List<VirtualTile> grid = [];
-
-    for (int y = 0; y < gridN; y++) {
-      List<String> tiles = lines[y].trim().split(' ');
-      for (int x = 0; x < gridN; x++) {
-        grid.add(VirtualTile(y * gridN + x, tiles[x]));
-      }
-    }
-
-    return Level(id, gridN, grid, startX, startY);
-  }
-}
 
 class VirtualController extends ChangeNotifier {
   List<Level> levels = []; // List of levels in the game
@@ -262,106 +232,4 @@ void nextLevel() {
     outcomeMessage = "Stop!";
     notifyListeners();
   }
-}
-
-@override
-Widget build(BuildContext context) {
-  // Create a ChangeNotifierProvider for the VirtualController
-  return ChangeNotifierProvider(
-    create: (context) => VirtualController(),
-    child: Consumer<VirtualController>( // Listen to changes in VirtualController
-      builder: (context, virtualController, child) {
-        // Show loading indicator while the levels are being initialized
-        if (virtualController.isLoading) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        // Check if the current level is loaded properly
-        if (virtualController.currentLevel == null) {
-          return Center(child: Text('Error loading levels'));
-        }
-
-        return Column(
-          children: [
-            // Display the current level ID
-            Text('Level ${virtualController.currentLevel!.id}',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            Expanded(
-              // Create a square grid for the active grid
-              child: AspectRatio(
-                aspectRatio: 1, // Maintain a square shape
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: virtualController.currentLevel!.gridN, // Set number of columns based on grid size
-                  ),
-                  itemCount: virtualController.activeGrid.length, // Set the number of items in the grid
-                  itemBuilder: (context, index) {
-                    // Create a grid item for each tile in the active grid
-                    return Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(), // Add border to each grid item
-                      ),
-                      child: Image.asset(
-                        'assets/blocks/${virtualController.activeGrid[index].tileType}.png',
-                        fit: BoxFit.contain, // Ensure the image fits within the cell
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Direction buttons for moving the doll
-                  ElevatedButton(
-                   onPressed: () async {
-                      await virtualController.moveBaby('left'); // Move left
-                    }, 
-                    child: Icon(Icons.arrow_left),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await virtualController.moveBaby('up'); // Move up
-                    }, 
-                    child: Icon(Icons.arrow_upward),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await virtualController.moveBaby('down'); // Move down
-                    }, 
-                    child: Icon(Icons.arrow_downward),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await virtualController.moveBaby('right'); // Move right
-                    }, 
-                    child: Icon(Icons.arrow_right),
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Button to go to the previous level
-                ElevatedButton(
-                  onPressed: virtualController.previousLevel,
-                  child: Text('Previous Level'),
-                ),
-                // Button to go to the next level
-                ElevatedButton(
-                  onPressed: virtualController.nextLevel,
-                  child: Text('Next Level'),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    ),
-  );
 }

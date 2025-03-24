@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'picture_block/sidebar.dart'; // Import the Sidebar
+import 'picture_block/widgets/sidebar.dart'; // Import the Sidebar
 
 class TextBlockPage extends StatefulWidget {
   @override

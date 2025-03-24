@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/picture_block/block_data.dart';
-import 'package:flutter_application_1/picture_block/block_shape.dart';
+import 'package:flutter_application_1/picture_block/models/block_data.dart';
+import 'package:flutter_application_1/picture_block/models/block_shape.dart';
+import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
 
-class BlockWithImage {
-  final String imagePath;
-  final Shape shape;
-
-  BlockWithImage({required this.imagePath, required this.shape});
-}
 
 class CommandManager extends StatefulWidget {
   final List<BlockWithImage> commandImages; // List to hold command images
