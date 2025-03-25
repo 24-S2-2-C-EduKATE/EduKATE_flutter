@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/interaction/block_sequence.dart';
 import 'package:flutter_application_1/picture_block/interaction/virtual_controller.dart';
 import 'package:provider/provider.dart';
-import 'widgets/sidebar.dart'; // Import the Sidebar
+import 'ui/sidebar.dart'; // Import the Sidebar
 import 'models/block_data.dart';
-import 'widgets/dragable_block.dart';
+import 'ui/dragable_block.dart';
 import 'interaction/block_helpers.dart';
-import 'widgets/command_manager.dart';
-import 'widgets/category_buttons.dart';
-import 'widgets/action_buttons.dart';
+import 'ui/command_manager.dart';
+import 'ui/category_buttons.dart';
+import 'ui/action_buttons.dart';
 import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
 
 class PictureBlockPage extends StatefulWidget {
