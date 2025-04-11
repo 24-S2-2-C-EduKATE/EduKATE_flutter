@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/models/block_data.dart';
 import 'package:flutter_application_1/picture_block/models/block_shape.dart';
 import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
+import 'package:flutter_application_1/picture_block/models/visual_block.dart';
 
 
 class CommandManager extends StatefulWidget {
@@ -56,7 +57,8 @@ Widget build(BuildContext context) {
                         CustomPaint(
                           size: Size(65, 65), // Size for each block
                           painter: BlockShapePainter(
-                            BlockData(
+                            VisualBlock(
+                              name: widget.commandImages[index].imagePath,
                               blockShape: widget.commandImages[index].shape, // Provide a valid Shape object here
                               imagePath: widget.commandImages[index].imagePath, // Provide imagePath
                               position: Offset(0, 0), // Provide a default position
@@ -87,7 +89,8 @@ Widget build(BuildContext context) {
                       CustomPaint(
                         size: Size(65, 65), // Size for each block
                         painter: BlockShapePainter(
-                          BlockData(
+                          VisualBlock(
+                            name: widget.commandImages[index].imagePath,
                             blockShape: widget.commandImages[index].shape,  // Provide a valid Shape object here
                             imagePath: widget.commandImages[index].imagePath, // Provide imagePath
                             position: Offset(0, 0), // Provide a default position
