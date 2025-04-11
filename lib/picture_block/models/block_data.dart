@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-enum ConnectionType {
-  left,
-  right,
-}
+import 'connection_point.dart';
 
 enum Shape {
   virtual,
@@ -17,23 +14,22 @@ enum Shape {
   // another shape
 }
 
-class Connection {
-  ConnectionType type;
-  BlockData? connectedBlock;
-
-  Connection({required this.type, this.connectedBlock});
-}
-
-class BlockData {
+abstract class BlockData {
+  final String id; 
+  final String name;
   final Shape blockShape;
-  String id; 
-  String imagePath;
+  final String imagePath;
   Offset position;
-  Map<ConnectionType, Connection> connections = {};
+  // 每個區塊可定義多個連接點
+  List<ConnectionPoint> connectionPoints;
 
   BlockData({
+    required this.name,
     required this.blockShape,
     required this.imagePath,
     required this.position,
+    required this.connectionPoints,
   }): id = Uuid().v4();
+
+  String toCommand();
 }
