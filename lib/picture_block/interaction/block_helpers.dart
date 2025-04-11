@@ -1,11 +1,11 @@
-// block_helpers.dart
-
+// lib/helpers/block_connector.dart
 import 'package:flutter/material.dart';
-import '../models/block_data.dart'; 
+import '../models/block_data.dart';
+import '../models/connection_point.dart';
+import 'dart:collection';
 
 class BlockHelpers {
-  static double blockWidth = 65.0; // Adjust according to actual size
-  static double blockHeight = 65.0; // Adjust according to actual size
+  static double snapThreshold = 20.0;
 
   // Get local position within the workspace
   static Offset getLocalPosition(GlobalKey stackKey, Offset globalPosition) {
@@ -13,78 +13,96 @@ class BlockHelpers {
     return stackRenderBox.globalToLocal(globalPosition); // Convert global position to local
   }
 
-  // Check if two blocks can connect
-  static bool canConnect(BlockData block1, BlockData block2, ConnectionType connectionType) {
-    double threshold = 20.0; // Distance threshold for connection
-
-    Offset position1, position2;
-
-    switch (connectionType) {
-    case ConnectionType.left:
-      position1 = block1.position;
-      position2 = block2.position + Offset(blockWidth, 0); 
-    case ConnectionType.right:
-      position1 = block1.position + Offset(blockWidth, 0); 
-      position2 = block2.position;
-    default:
-      return false;
-  }
-
-    // Check distance for potential connection
-    if ((position1 - position2).distance <= threshold) {
-      // Optionally check alignment
-      if (connectionType == ConnectionType.left || connectionType == ConnectionType.right) {
-        if ((block1.position.dy - block2.position.dy).abs() <= threshold) {
-          return true; // Aligned vertically
-        }
-      } else {
-        if ((block1.position.dx - block2.position.dx).abs() <= threshold) {
-          return true; // Aligned horizontally
+  static BlockData? checkPossibleConnection(BlockData movedBlock, List<BlockData> others) {
+  BlockData? highlightTarget;
+  for (var block in others) {
+    if (block.id == movedBlock.id) continue;
+    for (var cpA in block.connectionPoints) {
+      for (var cpB in movedBlock.connectionPoints) {
+        if (_compatible(cpA.type, cpB.type)) {
+          Offset globalA = cpA.getGlobalPosition(block.position);
+          Offset globalB = cpB.getGlobalPosition(movedBlock.position);
+          double distance = (globalA - globalB).distance;
+          if (distance < snapThreshold) {
+            // 有機會對接，就把 block 視為 highlight 目標
+            highlightTarget = block;
+          }
         }
       }
     }
-
-    return false; // No connection can be established
   }
+  return highlightTarget;
+}
 
-  // Establish a connection between two blocks
-  static void establishConnection(BlockData block1, BlockData block2, ConnectionType connectionType) {
-    // Update connection relations
-    block1.connections[connectionType] = Connection(type: connectionType, connectedBlock: block2);
-    block2.connections[getOppositeConnectionType(connectionType)] = Connection(
-      type: getOppositeConnectionType(connectionType),
-      connectedBlock: block1,
-    );
+  static List<BlockData> getConnectedBlocks(BlockData startBlock) {
+  // 這是一個示範，可依據您實際的連接點結構來實作
+  // 例如: next <-> previous 連接、或是 input <-> output 連接
+  List<BlockData> result = [];
+  Queue<BlockData> queue = Queue();
+  queue.add(startBlock);
 
-    // Align positions based on connection type
-     switch (connectionType) {
-    case ConnectionType.left:
-      block2.position = block1.position - Offset(blockWidth, 0);
-    case ConnectionType.right:
-      block2.position = block1.position + Offset(blockWidth, 0);
-  }
-  }
-
-  // Disconnect all connections of a block
-  static void disconnectAll(BlockData block) {
-    for (var connectionType in block.connections.keys.toList()) {
-      var connectedBlock = block.connections[connectionType]?.connectedBlock;
-      if (connectedBlock != null) {
-        connectedBlock.connections.remove(getOppositeConnectionType(connectionType)); // Remove opposite connection
+  while (queue.isNotEmpty) {
+    BlockData current = queue.removeFirst();
+    if (!result.contains(current)) {
+      result.add(current);
+      // 搜尋與 current 相連的區塊，加入 queue
+      for (var cp in current.connectionPoints) {
+        if (cp.connectedBlock != null && !result.contains(cp.connectedBlock)) {
+          queue.add(cp.connectedBlock!);
+        }
       }
-      block.connections.remove(connectionType); // Remove connection
     }
   }
+  return result;
+}
 
-  // Get the opposite connection type
-  static ConnectionType getOppositeConnectionType(ConnectionType type) {
-    switch (type) {
-      case ConnectionType.left:
-        return ConnectionType.right;
-      case ConnectionType.right:
-        return ConnectionType.left;
-      default:
-        throw Exception('Invalid ConnectionType');
+
+  /// 嘗試連接兩個區塊。如果兩個區塊在相容的連接點上靠得足夠近，就建立連接並自動調整位置。
+  static bool tryConnect(BlockData blockA, BlockData blockB) {
+    // 依序遍歷 blockA 的所有連接點
+    for (var cpA in blockA.connectionPoints) {
+      // 在 blockB 中尋找與 cpA 相容的連接點
+      for (var cpB in blockB.connectionPoints) {
+        if (_compatible(cpA.type, cpB.type)) {
+          Offset globalA = cpA.getGlobalPosition(blockA.position);
+          Offset globalB = cpB.getGlobalPosition(blockB.position);
+          if ((globalA - globalB).distance < snapThreshold) {
+            // 建立連接關係
+            cpA.connectedBlock = blockB;
+            cpB.connectedBlock = blockA;
+            // 調整 blockB 的位置，使得兩連接點對齊
+            blockB.position = blockA.position + (cpA.relativeOffset - cpB.relativeOffset);
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /// 判斷兩個連接型別是否相容（例如 previous 與 next 是一對）
+  static bool _compatible(ConnectionType typeA, ConnectionType typeB) {
+    if ((typeA == ConnectionType.next && typeB == ConnectionType.previous) ||
+        (typeA == ConnectionType.previous && typeB == ConnectionType.next)) {
+      return true;
+    }
+    // 針對容器區塊可另外定義 input 連接點的相容性（根據需求自訂）
+    // 例如：如果 typeA 為 input 且 typeB 為 input，視為不相容，或另外做處理
+    return false;
+  }
+
+  /// 斷開指定區塊的所有連接
+  static void disconnect(BlockData block) {
+    for (var cp in block.connectionPoints) {
+      if (cp.connectedBlock != null) {
+        // 找到對方區塊中連接到此區塊的連接點並清除
+        for (var other in cp.connectedBlock!.connectionPoints) {
+          if (other.connectedBlock == block) {
+            other.connectedBlock = null;
+          }
+        }
+        cp.connectedBlock = null;
+      }
     }
   }
 }
