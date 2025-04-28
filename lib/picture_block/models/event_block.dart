@@ -19,7 +19,7 @@ class EventBlock extends BlockData {
           position: position,
           connectionPoints: [
             // 若需要與其他事件區塊連接，可定義 next 連接點（例如右側）
-            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32)),
+            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
             // 可另外定義一個 input 連接點，作為放置子區塊的 drop 區域
             ConnectionPoint(type: ConnectionType.input, relativeOffset: Offset(10, 70)),
           ],

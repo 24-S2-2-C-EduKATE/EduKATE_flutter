@@ -1,5 +1,3 @@
-
-
 // lib/factories/block_factory.dart
 import 'package:flutter/material.dart';
 import 'block_data.dart';
@@ -86,9 +84,9 @@ class VirtualBlock extends BlockData {
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 虚拟方块的连接点
-            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32)),
-            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32)),
+            // 虚拟方块的连接点 - 精确定位
+            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32.5)),
+            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
           ],
         );
 
@@ -113,9 +111,9 @@ class VariableBlock extends BlockData {
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 变量方块的连接点
-            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32)),
-            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32)),
+            // 变量方块的连接点 - 精确定位
+            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32.5)),
+            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
           ],
         );
 
@@ -137,11 +135,11 @@ class ControlBlock extends BlockData {
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 控制方块的连接点
-            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32)),
-            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32)),
+            // 控制方块的连接点 - 精确定位
+            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32.5)),
+            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
             // 控制方块可能需要额外的input连接点用于嵌套内容
-            ConnectionPoint(type: ConnectionType.input, relativeOffset: Offset(32, 65)),
+            ConnectionPoint(type: ConnectionType.input, relativeOffset: Offset(32.5, 65)),
           ],
         );
 
@@ -163,9 +161,9 @@ class SoundBlock extends BlockData {
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 声音方块的连接点
-            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32)),
-            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32)),
+            // 声音方块的连接点 - 精确定位
+            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32.5)),
+            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
           ],
         );
 

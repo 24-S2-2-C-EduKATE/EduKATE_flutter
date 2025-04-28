@@ -112,42 +112,50 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
   }
 
   void _handleBlockUpdate(BlockData movedBlock) {
-  setState(() {
-    // 1. 邊界檢查：確保區塊未超出工作區
-    final workspaceSize = _stackKey.currentContext!.size!;
-    if (movedBlock.position.dx < 0 ||
-        movedBlock.position.dx > workspaceSize.width ||
-        movedBlock.position.dy < 0 ||
-        movedBlock.position.dy > workspaceSize.height) {
-      arrangedCommands.removeWhere((block) => block.id == movedBlock.id);
-      blockSequence.updateOrder(arrangedCommands);
-      return;
-    }
-
-    // 2. 直接用 tryConnect 檢查與其他區塊的連接
-    bool connected = false;
-    for (var block in arrangedCommands) {
-      if (block.id == movedBlock.id) continue;
-      // 由於 tryConnect 內部會依據連接點進行對齊及連接，這裡可以依序嘗試
-      if (BlockHelpers.tryConnect(block, movedBlock) ||
-          BlockHelpers.tryConnect(movedBlock, block)) {
-        connected = true;
-        break;
+    setState(() {
+      // 1. 邊界檢查：確保區塊未超出工作區
+      final workspaceSize = _stackKey.currentContext!.size!;
+      if (movedBlock.position.dx < 0 ||
+          movedBlock.position.dx > workspaceSize.width ||
+          movedBlock.position.dy < 0 ||
+          movedBlock.position.dy > workspaceSize.height) {
+        arrangedCommands.removeWhere((block) => block.id == movedBlock.id);
+        blockSequence.updateOrder(arrangedCommands);
+        return;
       }
-    }
-    // 如果無法建立連接，就斷開 movedBlock 現有的連線
-    if (!connected) {
-      BlockHelpers.disconnect(movedBlock);
-    }
-    // 確保 movedBlock 仍在全局排列中
-    if (!arrangedCommands.any((b) => b.id == movedBlock.id)) {
-      arrangedCommands.add(movedBlock);
-    }
-    // 3. 更新全局排列以及命令字串
-    blockSequence.updateOrder(arrangedCommands);
-    print(blockSequence.toCommand());
-  });
-}
+
+      // 2. 直接用 tryConnect 檢查與其他區塊的連接
+      bool connected = false;
+      for (var block in arrangedCommands) {
+        if (block.id == movedBlock.id) continue;
+        // 由於 tryConnect 內部會依據連接點進行對齊及連接，這裡可以依序嘗試
+        if (BlockHelpers.tryConnect(block, movedBlock) ||
+            BlockHelpers.tryConnect(movedBlock, block)) {
+          connected = true;
+          break;
+        }
+      }
+      
+      // 如果無法建立連接，就斷開 movedBlock 現有的連線
+      if (!connected) {
+        BlockHelpers.disconnect(movedBlock);
+      } else {
+        // 如果成功連接，再次調整整個連接鏈確保所有方塊對齊
+        List<BlockData> connectedChain = BlockHelpers.getConnectedBlocks(movedBlock);
+        if (connectedChain.isNotEmpty) {
+          BlockHelpers.adjustConnectedChain(connectedChain[0]);
+        }
+      }
+      
+      // 確保 movedBlock 仍在全局排列中
+      if (!arrangedCommands.any((b) => b.id == movedBlock.id)) {
+        arrangedCommands.add(movedBlock);
+      }
+      // 3. 更新全局排列以及命令字串
+      blockSequence.updateOrder(arrangedCommands);
+      print(blockSequence.toCommand());
+    });
+  }
 
 @override
   Widget build(BuildContext context) {
@@ -221,8 +229,29 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                             onAcceptWithDetails: (details) {
                               final localPosition = _getLocalPosition(details.offset);
                               final newBlock = createBlockFromData(details.data, localPosition);
+                              
                               setState(() {
                                 arrangedCommands.add(newBlock);
+                                
+                                // 嘗試與現有方塊連接
+                                bool connected = false;
+                                for (var block in arrangedCommands) {
+                                  if (block.id == newBlock.id) continue;
+                                  if (BlockHelpers.tryConnect(block, newBlock) ||
+                                      BlockHelpers.tryConnect(newBlock, block)) {
+                                    connected = true;
+                                    break;
+                                  }
+                                }
+                                
+                                // 如果連接成功，調整整個連接鏈
+                                if (connected) {
+                                  List<BlockData> connectedChain = BlockHelpers.getConnectedBlocks(newBlock);
+                                  if (connectedChain.isNotEmpty) {
+                                    BlockHelpers.adjustConnectedChain(connectedChain[0]);
+                                  }
+                                }
+                                
                                 blockSequence.updateOrder(arrangedCommands);
                                 blockSequence.toCommand();
                               });

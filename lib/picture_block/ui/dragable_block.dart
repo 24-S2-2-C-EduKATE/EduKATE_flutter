@@ -9,7 +9,6 @@ class DraggableBlock extends StatefulWidget {
   final Function(BlockData) onUpdate; // Callback function to update the block data
   final VirtualController virtualController;
   final List<BlockData> arrangedCommands;
-  bool isHighlighted = false;
 
   DraggableBlock({
     required this.blockData, // Required block data parameter
@@ -24,8 +23,6 @@ class DraggableBlock extends StatefulWidget {
 
 class _DraggableBlockState extends State<DraggableBlock> {
   Offset _offset = Offset.zero; // Initial offset for the block's position
-  bool _isHighlighted = false;  // 新增狀態變數來記錄高亮
-  
 
   @override
   void initState() {
@@ -39,7 +36,6 @@ class _DraggableBlockState extends State<DraggableBlock> {
     // Check if the position has changed
     if (widget.blockData.position != _offset) {
       setState(() {
-        _isHighlighted = true;
         _offset = widget.blockData.position; // Update offset if position has changed
       });
     }
@@ -60,13 +56,6 @@ class _DraggableBlockState extends State<DraggableBlock> {
         widget.virtualController.executeMoves(remainingBlocks);
 
        },
-        // onPanUpdate: (details) {
-        //   setState(() {
-        //     _offset += details.delta; // Update offset based on drag movement
-        //     widget.blockData.position = _offset; // Update block data position
-        //   });
-        //   widget.onUpdate(widget.blockData); // Call the update function with the current block data
-        // },
         onPanUpdate: (details) {
           setState(() {
             // 1. 取得整串相連的區塊
@@ -76,8 +65,14 @@ class _DraggableBlockState extends State<DraggableBlock> {
             for (var blk in connectedChain) {
               blk.position += details.delta;
             }
+            
+            // 3. 在拖動過程中調整整個連接鏈，確保對齊
+            if (connectedChain.isNotEmpty) {
+              // 使用公共方法調整整個連接鏈
+              BlockHelpers.adjustConnectedChain(widget.blockData);
+            }
 
-            // 3. 通知父元件 (PictureBlockPage) 做後續處理
+            // 4. 通知父元件 (PictureBlockPage) 做後續處理
             widget.onUpdate(widget.blockData); 
           });
         },
@@ -85,10 +80,6 @@ class _DraggableBlockState extends State<DraggableBlock> {
           final RenderBox renderBox = context.findRenderObject() as RenderBox; // Get the current render box
           final size = renderBox.size; // Get size of the render box
 
-          // 拖曳結束後取消高亮
-          setState(() {
-            _isHighlighted = false;
-          });
           // Check if the block is out of bounds of the working area
           if (_offset.dx < 0 || _offset.dx > size.width || 
               _offset.dy < 0 || _offset.dy > size.height) {
@@ -96,39 +87,28 @@ class _DraggableBlockState extends State<DraggableBlock> {
             widget.onUpdate(widget.blockData); // Or call a deletion function
           }
         },
-        child: Container(
-          decoration: _isHighlighted
-              ? BoxDecoration(
-                  border: Border.all(
-                    color: Colors.yellow.withOpacity(0.5),
-                    width: 3.0,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                )
-              : null,
         child: SizedBox(
           width: 65,  // Block size
           height: 65,
           child: CustomPaint(
             painter: BlockShapePainter(widget.blockData),
             child: Stack( 
-        children: [
-          Positioned(
-            left: 16, 
-            top: 13,  
-            child: Image.asset(
-              widget.blockData.imagePath,
-              width: 40,  // Set image width
-              height: 40, // Set image height
-              fit: BoxFit.contain,
+              children: [
+                Positioned(
+                  left: 16, 
+                  top: 13,  
+                  child: Image.asset(
+                    widget.blockData.imagePath,
+                    width: 40,  // Set image width
+                    height: 40, // Set image height
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-       ),
+        ),
       ),
-     ),
-  ),
-  ),
-);
+    );
   }
 }

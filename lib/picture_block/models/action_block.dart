@@ -18,10 +18,10 @@ class ActionBlock extends BlockData {
           imagePath: imagePath, 
           position: position,
           connectionPoints: [
-            // 假設左側為上一個區塊連接點
-            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32)),
-            // 假設右側為下一個區塊連接點
-            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32)),
+            // 假設左側為上一個區塊連接點 - 精確定位
+            ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32.5)),
+            // 假設右側為下一個區塊連接點 - 精確定位
+            ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
           ],
         );
 
