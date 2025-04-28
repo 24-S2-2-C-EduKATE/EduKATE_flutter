@@ -141,7 +141,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
         BlockHelpers.disconnect(movedBlock);
       } else {
         // 如果成功連接，再次調整整個連接鏈確保所有方塊對齊
-        List<BlockData> connectedChain = BlockHelpers.getConnectedBlocks(movedBlock);
+        List<BlockData> connectedChain = BlockHelpers.getRightConnectedBlocks(movedBlock);
         if (connectedChain.isNotEmpty) {
           BlockHelpers.adjustConnectedChain(connectedChain[0]);
         }
@@ -246,7 +246,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                                 
                                 // 如果連接成功，調整整個連接鏈
                                 if (connected) {
-                                  List<BlockData> connectedChain = BlockHelpers.getConnectedBlocks(newBlock);
+                                  List<BlockData> connectedChain = BlockHelpers.getRightConnectedBlocks(newBlock);
                                   if (connectedChain.isNotEmpty) {
                                     BlockHelpers.adjustConnectedChain(connectedChain[0]);
                                   }

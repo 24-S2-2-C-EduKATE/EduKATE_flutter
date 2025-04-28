@@ -1,3 +1,5 @@
+// lib/helpers/draggable_block.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/models/block_shape.dart';
 import '../models/block_data.dart';
@@ -5,14 +7,14 @@ import 'package:flutter_application_1/picture_block/interaction/block_helpers.da
 import 'package:flutter_application_1/picture_block/interaction/virtual_controller.dart';
 
 class DraggableBlock extends StatefulWidget {
-  final BlockData blockData; // Data associated with the block
-  final Function(BlockData) onUpdate; // Callback function to update the block data
+  final BlockData blockData;
+  final Function(BlockData) onUpdate;
   final VirtualController virtualController;
   final List<BlockData> arrangedCommands;
 
   DraggableBlock({
-    required this.blockData, // Required block data parameter
-    required this.onUpdate,   // Required update callback
+    required this.blockData,
+    required this.onUpdate,
     required this.virtualController,
     required this.arrangedCommands,
   });
@@ -22,21 +24,20 @@ class DraggableBlock extends StatefulWidget {
 }
 
 class _DraggableBlockState extends State<DraggableBlock> {
-  Offset _offset = Offset.zero; // Initial offset for the block's position
+  Offset _offset = Offset.zero;
 
   @override
   void initState() {
     super.initState();
-    _offset = widget.blockData.position; // Set initial position from block data
+    _offset = widget.blockData.position;
   }
 
   @override
   void didUpdateWidget(covariant DraggableBlock oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Check if the position has changed
     if (widget.blockData.position != _offset) {
       setState(() {
-        _offset = widget.blockData.position; // Update offset if position has changed
+        _offset = widget.blockData.position;
       });
     }
   }
@@ -44,63 +45,61 @@ class _DraggableBlockState extends State<DraggableBlock> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: _offset.dx, // Set horizontal position
-      top: _offset.dy,  // Set vertical position
+      left: _offset.dx,
+      top: _offset.dy,
       child: GestureDetector(
         onTap: () {
-        // Find the index of the current block
-        int currentIndex = widget.arrangedCommands.indexOf(widget.blockData);
-        // Get all blocks starting from the current block
-        List<BlockData> remainingBlocks = widget.arrangedCommands.sublist(currentIndex);
-        // Pass remaining blocks to the executeMoves method
-        widget.virtualController.executeMoves(remainingBlocks);
-
-       },
+          int currentIndex = widget.arrangedCommands.indexOf(widget.blockData);
+          List<BlockData> remainingBlocks = widget.arrangedCommands.sublist(currentIndex);
+          List<BlockData> chainToExecute = BlockHelpers.getRightConnectedBlocks(widget.blockData);
+          // ✅ 然后把这条链交给 executeMoves 执行
+          widget.virtualController.executeMoves(chainToExecute);
+        },
         onPanUpdate: (details) {
           setState(() {
-            // 1. 取得整串相連的區塊
-            List<BlockData> connectedChain = BlockHelpers.getConnectedBlocks(widget.blockData);
+            Offset delta = details.delta;
 
-            // 2. 讓整串的區塊都跟著移動
-            for (var blk in connectedChain) {
-              blk.position += details.delta;
-            }
-            
-            // 3. 在拖動過程中調整整個連接鏈，確保對齊
-            if (connectedChain.isNotEmpty) {
-              // 使用公共方法調整整個連接鏈
-              BlockHelpers.adjustConnectedChain(widget.blockData);
+            List<BlockData> connectedChain = BlockHelpers.getRightConnectedBlocks(widget.blockData);
+
+            for (var block in connectedChain) {
+              block.position += delta;
             }
 
-            // 4. 通知父元件 (PictureBlockPage) 做後續處理
-            widget.onUpdate(widget.blockData); 
+            // 拖动过程中就检查链是否要断
+            for (var block in connectedChain) {
+              BlockHelpers.checkAndDisconnect(block);
+            }
+
+            _offset += delta;
+            widget.blockData.position = _offset;
           });
-        },
-        onPanEnd: (details) {
-          final RenderBox renderBox = context.findRenderObject() as RenderBox; // Get the current render box
-          final size = renderBox.size; // Get size of the render box
 
-          // Check if the block is out of bounds of the working area
-          if (_offset.dx < 0 || _offset.dx > size.width || 
+          widget.onUpdate(widget.blockData);
+        },
+
+        onPanEnd: (details) {
+          final RenderBox renderBox = context.findRenderObject() as RenderBox;
+          final size = renderBox.size;
+
+          if (_offset.dx < 0 || _offset.dx > size.width ||
               _offset.dy < 0 || _offset.dy > size.height) {
-            // Trigger delete operation, can pass null or perform other actions
-            widget.onUpdate(widget.blockData); // Or call a deletion function
+            widget.onUpdate(widget.blockData);
           }
         },
         child: SizedBox(
-          width: 65,  // Block size
+          width: 65,
           height: 65,
           child: CustomPaint(
             painter: BlockShapePainter(widget.blockData),
-            child: Stack( 
+            child: Stack(
               children: [
                 Positioned(
-                  left: 16, 
-                  top: 13,  
+                  left: 16,
+                  top: 13,
                   child: Image.asset(
                     widget.blockData.imagePath,
-                    width: 40,  // Set image width
-                    height: 40, // Set image height
+                    width: 40,
+                    height: 40,
                     fit: BoxFit.contain,
                   ),
                 ),
