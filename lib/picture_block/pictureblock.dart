@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/interaction/block_sequence.dart';
 import 'package:flutter_application_1/picture_block/interaction/virtual_controller.dart';
+import 'package:flutter_application_1/picture_block/ui/repeat_block_widget.dart';
 import 'package:provider/provider.dart';
 import 'ui/sidebar.dart'; // Import the Sidebar
 import 'package:flutter_application_1/picture_block/models/block_data.dart';
@@ -11,7 +12,8 @@ import 'ui/category_buttons.dart';
 import 'ui/action_buttons.dart';
 import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
 import 'package:flutter_application_1/picture_block/models/block_factory.dart';
-
+import 'models/repeat_block.dart';
+import 'ui/DebugOverlay.dart';
 class PictureBlockPage extends StatefulWidget {
   const PictureBlockPage({Key? key}) : super(key: key);
 
@@ -87,6 +89,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
     } else if (category == 'Control') {
       commandImage = [
         BlockWithImage(imagePath: 'assets/images/wait.png', shape: Shape.control, name: 'wait'),
+        BlockWithImage(imagePath: 'assets/images/wait.png', shape: Shape.repeat, name: 'repeat')
       ];
     }
   });
@@ -237,6 +240,13 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                           ),
                           // Render the blocks that have been placed
                           ...arrangedCommands.map((block) {
+                            if(block is RepeatBlock){
+                              return RepeatBlockWidget(
+                                blockData: block, 
+                                onUpdate: _handleBlockUpdate, 
+                                virtualController: virtualController, 
+                                arrangedCommands: arrangedCommands);
+                            }
                             return DraggableBlock(
                               blockData: block, // Pass the block data
                               onUpdate: _handleBlockUpdate, // Callback to handle block updates
@@ -244,6 +254,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                               arrangedCommands: arrangedCommands,
                             );
                           }).toList(),
+                        ConnectionDotOverlay(arrangedCommands),
                         ],
                       ),
                     ),
