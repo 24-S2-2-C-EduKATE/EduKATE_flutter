@@ -10,7 +10,8 @@ enum Shape {
   variable1,
   control,
   sound,
-  variable2
+  variable2,
+  repeat
   // another shape
 }
 

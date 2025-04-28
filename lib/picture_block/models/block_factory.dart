@@ -1,5 +1,6 @@
 // lib/factories/block_factory.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/picture_block/models/repeat_block.dart';
 import 'block_data.dart';
 import 'action_block.dart';
 import 'event_block.dart';
@@ -21,13 +22,14 @@ BlockData createBlockFromData(BlockWithImage data, Offset position) {
         imagePath: data.imagePath,
         position: position,
       );
-    // case Shape.control:
-    //   return ControlBlock(
-    //     controlType: data.name, // 假設 ControlBlock 需要 controlType 參數
-    //     name: data.name,
-    //     imagePath: data.imagePath,
-    //     position: position,
-    //   );
+    case Shape.repeat:
+      return RepeatBlock(
+        name: data.name,
+        imagePath: data.imagePath,
+        position: position,
+        repeatCount: 1,
+        
+      );
     // 可根據需要增加其他類型
     default:
       // 如果沒有對應類型，就回傳一個預設的 ActionBlock

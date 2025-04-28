@@ -12,11 +12,12 @@ class RepeatBlock extends BlockData {
     required String name,
     required String imagePath,
     required Offset position,
-    required this.nestedSequence,
-  })  : assert(repeatCount > 0, "repeatCount 必須大於 0"),
+    BlockSequence? nestedSequence,
+  })  : nestedSequence = nestedSequence ?? BlockSequence(),
+        assert(repeatCount > 0, "repeatCount 必須大於 0"),
         super(
           name: name,
-          blockShape: Shape.action,
+          blockShape: Shape.repeat,
           imagePath: imagePath,
           position: position,
           connectionPoints: [
@@ -25,7 +26,7 @@ class RepeatBlock extends BlockData {
             // 假設右側為下一個區塊連接點
             ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32)),
             // 假設下半部為子區塊連接點
-            ConnectionPoint(type: ConnectionType.input, relativeOffset: Offset(32, 0)),
+            ConnectionPoint(type: ConnectionType.input, relativeOffset: Offset(32, 65)),
           ],
         );
 
