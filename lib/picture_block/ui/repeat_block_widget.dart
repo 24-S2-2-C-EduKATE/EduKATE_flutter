@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-
+import 'package:collection/collection.dart';
 import 'package:flutter_application_1/picture_block/interaction/block_helpers.dart';
 import 'package:flutter_application_1/picture_block/interaction/virtual_controller.dart';
 import 'package:flutter_application_1/picture_block/models/block_data.dart';
@@ -67,7 +67,8 @@ class _RepeatBlockWidgetState extends State<RepeatBlockWidget> {
   Widget build(BuildContext context) {
     
     // 1. 動態寬度計算
-    final double innerWidth = max(widget.blockData.nestedSequence.blocks.length, 1) * 65 + 40;
+    final chainCount = _measureChainWidth(widget.blockData);
+    final double innerWidth = chainCount * 65 + 40;
     const double fixedHeight = 120;
     final Size painterSize = Size(innerWidth, fixedHeight);
     Size test = Size(0, 0);
@@ -84,7 +85,7 @@ class _RepeatBlockWidgetState extends State<RepeatBlockWidget> {
         .relativeOffset = Offset(painterSize.width + 6, centerY);
     widget.blockData.connectionPoints
         .firstWhere((c) => c.type == ConnectionType.input)
-        .relativeOffset = Offset(40, centerY*2);
+        .relativeOffset = Offset(20, centerY);
 
     return Positioned(
       left: _offset.dx,
@@ -100,8 +101,8 @@ class _RepeatBlockWidgetState extends State<RepeatBlockWidget> {
           widget.onUpdate(widget.blockData);
         },
         child: SizedBox(
-          width: fixedHeight,
-          height: innerWidth,
+          width: innerWidth,
+          height: fixedHeight,
           child: CustomPaint(
             painter: _RepeatPainter(),
             child: Padding(
@@ -118,7 +119,7 @@ class _RepeatBlockWidgetState extends State<RepeatBlockWidget> {
                   });
                 },
                 builder: (context, cand, rej) {
-                  return Row(
+                  return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: widget.blockData.nestedSequence.blocks.map((b) {
                       return SizedBox(
@@ -211,4 +212,29 @@ class _RepeatPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+int _measureChainWidth(BlockData container) {
+  int _dfs(BlockData? node) {
+    if (node == null) return 0;
+    int n = 1;
+
+    // 子容器遞迴
+    final inputBlk = node.connectionPoints
+        .firstWhereOrNull((c) => c.type == ConnectionType.input)
+        ?.connectedBlock;
+    n += _dfs(inputBlk);
+
+    // 下一塊
+    final nextBlk = node.connectionPoints
+        .firstWhereOrNull((c) => c.type == ConnectionType.next)
+        ?.connectedBlock;
+    n += _dfs(nextBlk);
+
+    return n;
+  }
+
+  final first = container.connectionPoints
+      .firstWhereOrNull((c) => c.type == ConnectionType.input)
+      ?.connectedBlock;
+  return max(_dfs(first), 1);        // 至少留一格
 }
