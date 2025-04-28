@@ -11,7 +11,7 @@ enum ConnectionType {
 class ConnectionPoint {
   final ConnectionType type;
   // 相對於區塊本身的偏移位置（例如連接點在左側、右側或底部）
-  final Offset relativeOffset;
+  Offset relativeOffset;
   BlockData? connectedBlock;
 
   ConnectionPoint({
