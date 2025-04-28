@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/models/block_shape.dart';
 import '../models/block_data.dart';
 import 'package:flutter_application_1/picture_block/interaction/virtual_controller.dart';
+import 'package:flutter_application_1/picture_block/interaction/block_helpers.dart';
 
 class DraggableBlock extends StatefulWidget {
   final BlockData blockData; // Data associated with the block
@@ -54,14 +55,28 @@ class _DraggableBlockState extends State<DraggableBlock> {
         // Pass remaining blocks to the executeMoves method
         widget.virtualController.executeMoves(remainingBlocks);
 
-       },
-        onPanUpdate: (details) {
-          setState(() {
-            _offset += details.delta; // Update offset based on drag movement
-            widget.blockData.position = _offset; // Update block data position
-          });
-          widget.onUpdate(widget.blockData); // Call the update function with the current block data
-        },
+       },      
+       onPanUpdate: (details) {
+        setState(() {
+          Offset delta = details.delta; // Get the offset of drag and drop
+      
+          //Retrieve all connection blocks on the right side starting from the current block
+          List<BlockData> connectedBlocks = BlockHelpers.getRightConnectedBlocks(widget.blockData);
+      
+          // Move these blocks
+          for (var block in connectedBlocks) {
+            block.position += delta; // Update the position of each block
+          }
+      
+          //Check and disconnect connections that are out of range
+          BlockHelpers.checkAndDisconnect(widget.blockData);
+      
+          _offset += delta; // Update the offset of the current block
+          widget.blockData.position = _offset; // Update the data position of the current block
+        });
+      
+        widget.onUpdate(widget.blockData); 
+      },
         onPanEnd: (details) {
           final RenderBox renderBox = context.findRenderObject() as RenderBox; // Get the current render box
           final size = renderBox.size; // Get size of the render box
