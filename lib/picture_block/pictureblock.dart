@@ -184,7 +184,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
               },
             ),
           ),
-          const SizedBox(width: 90),
+          const SizedBox(width: 70),
         ],
       ),
       body: Row(
@@ -265,7 +265,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                           child: Text(
                             virtualController.outcomeMessage,
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -276,19 +276,23 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
             ),
           ),
           // Add a small column for the sidebar toggle button
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: Icon(
-                  isSidebarOpen
-                      ? Icons.arrow_circle_right // Left arrow when sidebar is open
-                      : Icons.arrow_circle_left, // Right arrow when sidebar is closed
-                    size: 30.0,
+          SizedBox(
+            width: 48,
+            child:Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    isSidebarOpen
+                        ? Icons.arrow_circle_right // Left arrow when sidebar is open
+                        : Icons.arrow_circle_left, // Right arrow when sidebar is closed
+                      size: 40.0,
+                      color: Colors.black,
+                  ),
+                  onPressed: toggleSidebar,
                 ),
-                onPressed: toggleSidebar,
-              ),
-            ],
+              ],
+            ),
           ),
           // Sidebar widget, open/closed based on state
           Sidebar(isOpen: isSidebarOpen), // Uses the Sidebar class
