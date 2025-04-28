@@ -265,7 +265,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                           child: Text(
                             virtualController.outcomeMessage,
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
