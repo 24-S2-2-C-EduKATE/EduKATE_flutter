@@ -83,7 +83,8 @@ class BlockHelpers {
   /// 判斷兩個連接型別是否相容（例如 previous 與 next 是一對）
   static bool _compatible(ConnectionType typeA, ConnectionType typeB) {
     if ((typeA == ConnectionType.next && typeB == ConnectionType.previous) ||
-        (typeA == ConnectionType.previous && typeB == ConnectionType.next)) {
+        (typeA == ConnectionType.previous && typeB == ConnectionType.next) ||
+        (typeA == ConnectionType.input && typeB == ConnectionType.previous)) {
       return true;
     }
     // 針對容器區塊可另外定義 input 連接點的相容性（根據需求自訂）
