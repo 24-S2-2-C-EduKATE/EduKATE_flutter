@@ -4,7 +4,7 @@ import 'connection_point.dart';
 import '../interaction/block_sequence.dart';
 
 class RepeatBlock extends BlockData {
-  final int repeatCount;
+  late final int repeatCount;
   final BlockSequence nestedSequence;
 
   RepeatBlock({
