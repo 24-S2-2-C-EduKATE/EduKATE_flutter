@@ -88,9 +88,12 @@ class _RepeatBlockWidgetState extends State<RepeatBlockWidget> {
         .relativeOffset = Offset(20, centerY);
 
     return Positioned(
-      left: _offset.dx,
-      top: _offset.dy,
-      child: GestureDetector(
+  left: _offset.dx,
+  top: _offset.dy,
+  child: Stack(
+    clipBehavior: Clip.none,
+    children: [
+      GestureDetector(
         onPanUpdate: (details) {
           setState(() {
             final chain = BlockHelpers.getConnectedBlocks(widget.blockData);
@@ -109,11 +112,10 @@ class _RepeatBlockWidgetState extends State<RepeatBlockWidget> {
               padding: const EdgeInsets.fromLTRB(20, 24, 15, 10),
               child: DragTarget<BlockData>(
                 onWillAcceptWithDetails: (details) => details.data != widget.blockData,
-                onAcceptWithDetails: (details) {             
+                onAcceptWithDetails: (details) {
                   final child = details.data;
                   setState(() {
                     widget.blockData.nestedSequence.addBlock(child);
-                    // 依序向右排：32 是 C 槽空白，65 每格寬
                     final idx = widget.blockData.nestedSequence.blocks.length - 1;
                     child.position = widget.blockData.position + Offset(32 + idx * 65, 0);
                   });
@@ -137,12 +139,49 @@ class _RepeatBlockWidgetState extends State<RepeatBlockWidget> {
                 },
               ),
             ),
-          )
+          ),
         ),
       ),
-    );
+
+      // ✅ 只有 RepeatBlock 才显示编辑框
+      if (widget.blockData is RepeatBlock)
+        Positioned(
+          top: -1,
+          right: -1,
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: TextField(
+              keyboardType: TextInputType.number,
+              style: const TextStyle(fontSize: 14, color: Colors.black),
+              textAlign: TextAlign.center,
+              controller: TextEditingController(
+                text: (widget.blockData as RepeatBlock).repeatCount.toString(),
+              )..selection = TextSelection.collapsed(
+                  offset: (widget.blockData as RepeatBlock).repeatCount.toString().length),
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 4),
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (value) {
+                final newVal = int.tryParse(value);
+                if (newVal != null) {
+                  setState(() {
+                    (widget.blockData as RepeatBlock).repeatCount = newVal;
+                  });
+                  widget.onUpdate(widget.blockData);
+                }
+              },
+            ),
+          ),
+        ),
+    ],
+  ),
+);
   }
 }
+
 
 /// -------------------------------------------------------------------------
 /// Painter: draws the yellow C‑shape + left notch + right protrusion.
@@ -155,7 +194,7 @@ class _RepeatPainter extends CustomPainter {
       ..color = const Color.fromARGB(255, 248, 231, 81)
       ..style = PaintingStyle.fill;
     final path = Path();
-    final double rectHeight = size.height;
+    final double rectHeight = size.height / 4;
     final double topOffset = (size.height - rectHeight) / 2;
     final double ovalWidth = 13;
     final double ovalHeight = rectHeight + 5;
