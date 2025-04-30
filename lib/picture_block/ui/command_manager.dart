@@ -3,11 +3,11 @@ import 'package:flutter_application_1/picture_block/models/block_data.dart';
 import 'package:flutter_application_1/picture_block/models/block_shape.dart';
 import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
 import 'package:flutter_application_1/picture_block/models/visual_block.dart';
-
+import 'package:audioplayers/audioplayers.dart'; // 添加音效支持
 
 class CommandManager extends StatefulWidget {
-  final List<BlockWithImage> commandImages; // List to hold command images
-  
+  final List<BlockWithImage> commandImages;
+
   const CommandManager({
     Key? key,
     required this.commandImages,
@@ -18,105 +18,155 @@ class CommandManager extends StatefulWidget {
 }
 
 class _CommandManagerState extends State<CommandManager> {
-  List<BlockWithImage> commandImages = []; // List to hold command images
-  String selectedCategory = 'Events'; // Default selected category
+  List<BlockWithImage> commandImages = [];
+  String selectedCategory = 'Events';
+  String? selectedBlockId; // 当前点击的 block id
+  String? hoveringBlockId; // 当前 hover 的 block id
+  late final AudioPlayer _audioPlayer; // 音效播放器
 
   @override
- void initState() {
-  super.initState();
-  // Automatically load the 'Events' category when the widget is initialized
-}
+  void initState() {
+    super.initState();
+    _audioPlayer = AudioPlayer(); // 初始化播放器
+    preloadSound(); // 预加载音效
+  }
 
-@override
-Widget build(BuildContext context) {
-  return Column(
-    children: [
-      Container(
-        height: 100,
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 198, 236, 247), // Inner container background color
-          borderRadius: BorderRadius.circular(50), // Rounded corners for the inner container
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0), // Padding
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: widget.commandImages.length, // Assuming commandImages is the list of images
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 25),
-              child: Draggable<BlockWithImage>(
-                data: widget.commandImages[index],
-                feedback: Material(
-                  color: Colors.transparent,
-                  child: SizedBox(
-                    height: 65,
-                    width: 65, // Added width to maintain aspect ratio for shapes
-                    child: Stack(
-                      children: [
-                        // Paint the block shape first
-                        CustomPaint(
-                          size: Size(65, 65), // Size for each block
-                          painter: BlockShapePainter(
-                            VisualBlock(
-                              name: widget.commandImages[index].imagePath,
-                              blockShape: widget.commandImages[index].shape, // Provide a valid Shape object here
-                              imagePath: widget.commandImages[index].imagePath, // Provide imagePath
-                              position: Offset(0, 0), // Provide a default position
-                            ),
-                          ),
+  Future<void> preloadSound() async {
+    try {
+      await _audioPlayer.setSourceAsset('sounds/click.wav');
+    } catch (e) {
+      print('play sound fail: $e');
+    }
+  }
+
+  Future<void> playSound() async {
+    try {
+      await _audioPlayer.resume(); // 播放音效
+    } catch (e) {
+      print('play sound fail: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        setState(() {
+          selectedBlockId = null;
+        });
+      },
+      child: Column(
+        children: [
+          Container(
+            height: 100,
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 198, 236, 247),
+              borderRadius: BorderRadius.circular(50),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.commandImages.length,
+              itemBuilder: (context, index) {
+                final block = widget.commandImages[index];
+                final isSelected = selectedBlockId == block.imagePath;
+                final isHovering = hoveringBlockId == block.imagePath;
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 25),
+                  child: MouseRegion(
+                    onEnter: (_) {
+                      setState(() {
+                        hoveringBlockId = block.imagePath;
+                      });
+                    },
+                    onExit: (_) {
+                      setState(() {
+                        hoveringBlockId = null;
+                      });
+                    },
+                    child: GestureDetector(
+                      onTapDown: (_) async {
+                        setState(() {
+                          selectedBlockId = block.imagePath;
+                        });
+                        await playSound(); // 播放点击音效
+                      },
+                      child: Draggable<BlockWithImage>(
+                        data: block,
+                        feedback: Material(
+                          color: Colors.transparent,
+                          child: _buildBlock(block, isSelected, isHovering),
                         ),
-                        // Then overlay the image on top of the shape
-                        Positioned(
-                          left: 16, // Custom left position
-                          top: 13,  // Custom top position
-                          child: Image.asset(
-                            widget.commandImages[index].imagePath,
-                            width: 40,  // Custom width
-                            height: 40, // Custom height
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ],
+                        child: _buildBlock(block, isSelected, isHovering),
+                        onDragEnd: (_) {
+                          setState(() {
+                            selectedBlockId = null;
+                          });
+                        },
+                      ),
                     ),
                   ),
-                ),
-                child: SizedBox(
-                  height: 65,
-                  width: 65,
-                  child: Stack(
-                    children: [
-                      // Paint the block shape first
-                      CustomPaint(
-                        size: Size(65, 65), // Size for each block
-                        painter: BlockShapePainter(
-                          VisualBlock(
-                            name: widget.commandImages[index].imagePath,
-                            blockShape: widget.commandImages[index].shape,  // Provide a valid Shape object here
-                            imagePath: widget.commandImages[index].imagePath, // Provide imagePath
-                            position: Offset(0, 0), // Provide a default position
-                          ),
-                        ),
-                      ),
-                      // Then overlay the image on top of the shape
-                      Positioned(
-                        left: 16, // Custom left position
-                        top: 13,  // Custom top position
-                        child: Image.asset(
-                          widget.commandImages[index].imagePath,
-                          width: 40,  // Custom width
-                          height: 40, // Custom height
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ],
-                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBlock(BlockWithImage block, bool isSelected, bool isHovering) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: Colors.blueAccent.withOpacity(0.6),
+                  blurRadius: 12,
+                  spreadRadius: 6,
+                )
+              ]
+            : isHovering
+                ? [
+                    BoxShadow(
+                      color: Colors.blueAccent.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 3,
+                    )
+                  ]
+                : [],
+      ),
+      child: SizedBox(
+        height: 65,
+        width: 65,
+        child: Stack(
+          children: [
+            CustomPaint(
+              size: Size(65, 65),
+              painter: BlockShapePainter(
+                VisualBlock(
+                  name: block.imagePath,
+                  blockShape: block.shape,
+                  imagePath: block.imagePath,
+                  position: Offset(0, 0),
                 ),
               ),
-            );
-          },
+            ),
+            Positioned(
+              left: 16,
+              top: 13,
+              child: Image.asset(
+                block.imagePath,
+                width: 40,
+                height: 40,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ],
         ),
       ),
-    ],
-  );
-}
+    );
+  }
 }
