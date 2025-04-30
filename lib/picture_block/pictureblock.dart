@@ -197,7 +197,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
               },
             ),
           ),
-          const SizedBox(width: 90),
+          const SizedBox(width: 70),
         ],
       ),
       body: Row(
