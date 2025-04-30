@@ -197,7 +197,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
               },
             ),
           ),
-          const SizedBox(width: 90),
+          const SizedBox(width: 70),
         ],
       ),
       body: Row(
@@ -300,7 +300,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                           child: Text(
                             virtualController.outcomeMessage,
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),

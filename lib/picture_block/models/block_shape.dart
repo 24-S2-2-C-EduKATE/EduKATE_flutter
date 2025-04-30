@@ -59,7 +59,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       ));
 
     } else if (blockData.blockShape == Shape.action) {  // Condition for drawing 'action' shaped block.
-      paint.color = const Color.fromARGB(255, 184, 117, 196);  // Set color for 'action' block.
+      paint.color = const Color.fromARGB(255, 189, 149, 228);  // Set color for 'action' block.
       path.moveTo(0, cornerRadius);  // Start path at the top-left corner with a rounded corner.
       path.quadraticBezierTo(0, 0, cornerRadius, 0);  // Draw top-left rounded corner.
       path.lineTo(size.width - cornerRadius, 0);  // Draw top edge.
@@ -156,7 +156,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       ));
       
     } else if (blockData.blockShape == Shape.variable1) {  // Condition for drawing 'variable1' shaped block.
-      paint.color = const Color.fromARGB(255, 92, 190, 95);  // Set color for 'variable1' block.
+      paint.color = const Color.fromARGB(255, 137, 232, 175);  // Set color for 'variable1' block.
       path.moveTo(0, cornerRadius);  // Start drawing the block.
       // Shape drawing logic for 'variable1'.
       path.quadraticBezierTo(0, 0, cornerRadius, 0);  // Draw top-left rounded corner.
@@ -196,7 +196,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       ));
       
     } else if (blockData.blockShape == Shape.variable2) {  // Condition for drawing 'variable2' shaped block.
-      paint.color = const Color.fromARGB(255, 92, 190, 95);  // Set color for 'variable2' block.
+      paint.color = const Color.fromARGB(255, 89, 189, 126);  // Set color for 'variable2' block.
       path.moveTo(0, cornerRadius);
       path.quadraticBezierTo(0, 0, cornerRadius, 0);
       path.lineTo(size.width - cornerRadius, 0);
@@ -207,7 +207,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
       path.quadraticBezierTo(0, size.height, 0, size.height - cornerRadius);
       
     } else if (blockData.blockShape == Shape.control) {  // Condition for drawing 'control' shaped block.
-      paint.color = const Color.fromARGB(255, 239, 175, 151);  // Set color for 'control' block.
+      paint.color = const Color.fromARGB(255, 247, 139, 146);  // Set color for 'control' block.
       path.moveTo(0, cornerRadius);  // Start drawing the block.
       // Shape drawing logic for 'control'.
       path.quadraticBezierTo(0, 0, cornerRadius, 0);  // Draw top-left rounded corner.
@@ -246,7 +246,7 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
         ovalHeight
       ));
     }else if (blockData.blockShape == Shape.control2) {  // Condition for drawing 'control' shaped block.
-      paint.color = const Color.fromARGB(255, 249, 123, 165);  // Set color for 'control' block.
+      paint.color = const Color.fromARGB(255, 247, 139, 146);  // Set color for 'control' block.
       // 1. 主体：圆角矩形 + 左侧凹槽
     path.moveTo(0, cornerRadius);
     path.quadraticBezierTo(0, 0, cornerRadius, 0);
