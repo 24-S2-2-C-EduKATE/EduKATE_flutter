@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/interaction/block_sequence.dart';
 import 'package:flutter_application_1/picture_block/interaction/virtual_controller.dart';
+import 'package:flutter_application_1/picture_block/models/repeat_block.dart';
 import 'package:provider/provider.dart';
 import 'ui/sidebar.dart'; // Import the Sidebar
 import 'package:flutter_application_1/picture_block/models/block_data.dart';
@@ -11,6 +12,7 @@ import 'ui/category_buttons.dart';
 import 'ui/action_buttons.dart';
 import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
 import 'package:flutter_application_1/picture_block/models/block_factory.dart';
+import 'ui/repeat_block_widget.dart';
 
 class PictureBlockPage extends StatefulWidget {
   const PictureBlockPage({Key? key}) : super(key: key);
@@ -87,6 +89,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
     } else if (category == 'Control') {
       commandImage = [
         BlockWithImage(imagePath: 'assets/images/wait.png', shape: Shape.control, name: 'wait'),
+        BlockWithImage(imagePath: 'assets/images/wait.png', shape: Shape.control2, name: 'repeat'),
       ];
     }
   });
@@ -266,12 +269,16 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                           ),
                           // Render the blocks that have been placed
                           ...arrangedCommands.map((block) {
+                            if(block is RepeatBlock){
+                              return RepeatBlockWidget(data: block);
+                            }else{
                             return DraggableBlock(
                               blockData: block, // Pass the block data
                               onUpdate: _handleBlockUpdate, // Callback to handle block updates
                               virtualController: virtualController,
                               arrangedCommands: arrangedCommands,
                             );
+                            }
                           }).toList(),
                         ],
                       ),

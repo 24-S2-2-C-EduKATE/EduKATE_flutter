@@ -9,6 +9,7 @@ enum Shape {
   action,
   variable1,
   control,
+  control2,
   sound,
   variable2
   // another shape

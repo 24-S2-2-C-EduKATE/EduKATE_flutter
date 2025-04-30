@@ -6,6 +6,8 @@ import 'event_block.dart';
 import 'visual_block.dart';
 import 'connection_point.dart';
 import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
+import 'repeat_block.dart';
+import 'package:flutter_application_1/picture_block/interaction/block_sequence.dart';
 
 /// 根據傳入的 [BlockWithImage] 建立具體的 [BlockData] 實例，並使用給定的位置作為初始位置。
 BlockData createBlockFromData(BlockWithImage data, Offset position) {
@@ -54,6 +56,13 @@ BlockData createBlockFromData(BlockWithImage data, Offset position) {
         name: data.name,
         imagePath: data.imagePath,
         position: position,
+      );case Shape.control2:
+      return RepeatBlock(
+        name: data.name,
+        imagePath: data.imagePath,
+        position: position, 
+        repeatCount: 1,
+        nestedSequence: BlockSequence()
       );
     case Shape.sound:
       return SoundBlock(
