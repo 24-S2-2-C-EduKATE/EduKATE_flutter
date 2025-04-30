@@ -3,14 +3,14 @@ import 'package:flutter_application_1/picture_block/models/block_shape.dart';
 import '../models/block_data.dart';
 import 'package:flutter_application_1/picture_block/interaction/block_helpers.dart';
 import 'package:flutter_application_1/picture_block/interaction/virtual_controller.dart';
-import 'package:audioplayers/audioplayers.dart'; // 音效播放器
+import 'package:audioplayers/audioplayers.dart';
 
-/// DraggableBlock:
-/// - 点击执行 onTap
-/// - 拖动（pan）移动整个连接链
-/// - 长按拖拽 (LongPressDraggable) 用于拖入 RepeatBlockWidget
-/// - 鼠标悬停/选中发光
-/// - 点击播放音效
+/// Draggable blocks:
+/// - Click to execute onTap
+/// - Drag (translate) to move the entire connection chain
+/// - Long press drag (LongPressDraggable) to drag into RepeatBlockWidget
+/// - Mouse hover/select to emit light
+/// - Click to play sound effects
 class DraggableBlock extends StatefulWidget {
   final BlockData blockData;
   final Function(BlockData) onUpdate;
@@ -39,8 +39,8 @@ class _DraggableBlockState extends State<DraggableBlock> {
   void initState() {
     super.initState();
     _offset = widget.blockData.position;
-    _audioPlayer = AudioPlayer(); // 初始化音效播放器
-    preloadSound(); // 预加载音效
+    _audioPlayer = AudioPlayer(); 
+    preloadSound(); 
   }
 
   Future<void> preloadSound() async {
@@ -74,7 +74,7 @@ class _DraggableBlockState extends State<DraggableBlock> {
       onExit: (_) => setState(() => isHovering = false),
       child: GestureDetector(
         onTap: () {
-          // 点击执行，从当前积木开始的右侧链
+        // Click to execute, starting from the right side of the current block
           List<BlockData> chainToExecute =
               BlockHelpers.getRightConnectedBlocks(widget.blockData);
           widget.virtualController.executeMoves(chainToExecute);
@@ -161,7 +161,7 @@ class _DraggableBlockState extends State<DraggableBlock> {
         feedback: Opacity(opacity: 0.7, child: content),
         childWhenDragging: Opacity(opacity: 0.3, child: content),
         onDragEnd: (_) {
-          // 拖拽结束逻辑（保留空实现，支持未来扩展）
+          // Drag end logic (keep empty implementation to support future expansion)
         },
         child: content,
       ),
