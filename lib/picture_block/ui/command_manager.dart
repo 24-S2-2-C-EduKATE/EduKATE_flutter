@@ -3,7 +3,7 @@ import 'package:flutter_application_1/picture_block/models/block_data.dart';
 import 'package:flutter_application_1/picture_block/models/block_shape.dart';
 import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
 import 'package:flutter_application_1/picture_block/models/visual_block.dart';
-import 'package:audioplayers/audioplayers.dart'; // 添加音效支持
+import 'package:audioplayers/audioplayers.dart'; // add audio player
 
 class CommandManager extends StatefulWidget {
   final List<BlockWithImage> commandImages;
@@ -20,15 +20,15 @@ class CommandManager extends StatefulWidget {
 class _CommandManagerState extends State<CommandManager> {
   List<BlockWithImage> commandImages = [];
   String selectedCategory = 'Events';
-  String? selectedBlockId; // 当前点击的 block id
-  String? hoveringBlockId; // 当前 hover 的 block id
-  late final AudioPlayer _audioPlayer; // 音效播放器
+  String? selectedBlockId; // selected block id
+  String? hoveringBlockId; // hover block id
+  late final AudioPlayer _audioPlayer;
 
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer(); // 初始化播放器
-    preloadSound(); // 预加载音效
+    _audioPlayer = AudioPlayer(); // initial load player
+    preloadSound(); // preload
   }
 
   Future<void> preloadSound() async {
@@ -41,7 +41,7 @@ class _CommandManagerState extends State<CommandManager> {
 
   Future<void> playSound() async {
     try {
-      await _audioPlayer.resume(); // 播放音效
+      await _audioPlayer.resume(); // play sound
     } catch (e) {
       print('play sound fail: $e');
     }
@@ -91,7 +91,7 @@ class _CommandManagerState extends State<CommandManager> {
                         setState(() {
                           selectedBlockId = block.imagePath;
                         });
-                        await playSound(); // 播放点击音效
+                        await playSound(); // play click sound
                       },
                       child: Draggable<BlockWithImage>(
                         data: block,
