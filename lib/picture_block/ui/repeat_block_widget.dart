@@ -31,89 +31,100 @@ class _RepeatBlockWidgetState extends State<RepeatBlockWidget> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: widget.data.position.dx,
-      top: widget.data.position.dy,
-      child: GestureDetector(
-        // 整体拖动 RepeatBlock
-        onPanUpdate: (details) {
+ @override
+Widget build(BuildContext context) {
+  return Positioned(
+    left: widget.data.position.dx,
+    top: widget.data.position.dy,
+    child: GestureDetector(
+      // 整体拖动 RepeatBlock
+      onPanUpdate: (details) {
+        setState(() {
+          widget.data.position += details.delta;
+        });
+      },
+      child: DragTarget<BlockData>(
+        // 接收外部拖入的积木
+        onAccept: (blockData) {
           setState(() {
-            widget.data.position += details.delta;
+            widget.data.nestedBlocks.add(blockData);
           });
         },
-        child: DragTarget<BlockData>(
-          // 接收外部拖入的积木
-          onAccept: (blockData) {
-            setState(() {
-              widget.data.nestedBlocks.add(blockData);
-            });
-          },
-          builder: (context, candidateData, rejectedData) {
-            return Container(
-              key: _key,
-              child: CustomPaint(
-                painter: PuzzlePainter(color: Colors.orange),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 顶部留空
-                      const SizedBox(height: 40, width: 70),
-                      // 嵌套积木水平滚动区
-                      Container(
-                        height: 100,
-                        color: Colors.white,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: widget.data.nestedBlocks.map((child) {
-                              // 将子积木作为 Draggable
-                              return Draggable<BlockData>(
-                                data: child,
-                                feedback: _buildChildWidget(child, opacity: 0.7),
-                                childWhenDragging: Container(),
-                                onDragEnd: (details) => _removeChild(child, details.offset),
-                                child: _buildChildWidget(child),
-                              );
-                            }).toList(),
+        builder: (context, candidateData, rejectedData) {
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                key: _key,
+                child: CustomPaint(
+                  painter: PuzzlePainter(color: Colors.orange),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // 顶部留空
+                        const SizedBox(height: 40, width: 70),
+                        // 嵌套积木水平滚动区
+                        Container(
+                          height: 100,
+                          color: Colors.white,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: widget.data.nestedBlocks.map((child) {
+                                // 将子积木作为 Draggable
+                                return Draggable<BlockData>(
+                                  data: child,
+                                  feedback: _buildChildWidget(child, opacity: 0.7),
+                                  childWhenDragging: Container(),
+                                  onDragEnd: (details) => _removeChild(child, details.offset),
+                                  child: _buildChildWidget(child),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      // 重复次数输入框
-                      SizedBox(
-                        width: 60,
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            isCollapsed: true,
-                            contentPadding: const EdgeInsets.only(left: 5, top: 3),
-                            hintText: widget.data.repeatCount.toString(),
-                          ),
-                          onChanged: (v) {
-                            final t = int.tryParse(v);
-                            if (t != null) {
-                              setState(() {
-                                widget.data.repeatCount = t;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            );
-          },
-        ),
+              // 将数字输入框定位到右上角
+              Positioned(
+                top: -2,
+                right: -2,
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                      contentPadding: const EdgeInsets.only(top: 4),
+                      hintText: widget.data.repeatCount.toString(),
+                    ),
+                    onChanged: (v) {
+                      final t = int.tryParse(v);
+                      if (t != null) {
+                        setState(() {
+                          widget.data.repeatCount = t;
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
+}
 
   /// 构建子积木的渲染
   Widget _buildChildWidget(BlockData child, {double opacity = 1.0}) {
