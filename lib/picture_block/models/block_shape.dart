@@ -245,6 +245,52 @@ class BlockShapePainter extends CustomPainter {  // CustomPainter class for draw
         ovalWidth,
         ovalHeight
       ));
+    }else if (blockData.blockShape == Shape.control2) {  // Condition for drawing 'control' shaped block.
+      paint.color = const Color.fromARGB(255, 249, 123, 165);  // Set color for 'control' block.
+      // 1. 主体：圆角矩形 + 左侧凹槽
+    path.moveTo(0, cornerRadius);
+    path.quadraticBezierTo(0, 0, cornerRadius, 0);
+    path.lineTo(size.width - cornerRadius, 0);
+    path.quadraticBezierTo(size.width, 0, size.width, cornerRadius);
+    path.lineTo(size.width, size.height - cornerRadius);
+    path.quadraticBezierTo(
+        size.width, size.height, size.width - cornerRadius, size.height);
+    path.lineTo(size.width - 2 * cornerRadius, size.height);
+    path.lineTo(size.width - 2 * cornerRadius, 1.5 * cornerRadius);
+    path.lineTo(cornerRadius, 1.5 * cornerRadius);
+    path.lineTo(cornerRadius, size.height);
+    path.quadraticBezierTo(0, size.height, 0, size.height - cornerRadius);
+    // 左侧凹槽
+    path.lineTo(0, topOffset + rectHeight);
+    path.lineTo(6, topOffset + rectHeight);
+    path.lineTo(6, topOffset);
+    path.lineTo(0, topOffset);
+    path.close();
+
+    // 2. 左侧凹槽内的小椭圆
+    final double ovalCenterX = 9.55;
+    final double ovalCenterY = topOffset + ovalHeight / 2;
+    path.moveTo(6, topOffset + rectHeight);
+    path.lineTo(6, topOffset);
+    path.arcTo(
+      Rect.fromCenter(
+          center: Offset(ovalCenterX, ovalCenterY),
+          width: ovalWidth,
+          height: ovalHeight),
+      2.1418,
+      -4.391,
+      false,
+    );
+    path.close();
+
+    // 3. 右侧凸台（矩形 + 椭圆）
+    path.addRect(Rect.fromLTWH(size.width, topOffset, 6, rectHeight));
+    path.addOval(Rect.fromLTWH(
+      size.width + 3.55,
+      topOffset - 2.5,
+      ovalWidth,
+      ovalHeight,
+    ));
     }
     canvas.drawPath(path, paint);  // Draw the path on the canvas with the selected paint.
   }

@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/picture_block/interaction/block_sequence.dart';
 import 'package:flutter_application_1/picture_block/interaction/virtual_controller.dart';
+import 'package:flutter_application_1/picture_block/models/repeat_block.dart';
 import 'package:provider/provider.dart';
 import 'ui/sidebar.dart'; // Import the Sidebar
-import 'models/block_data.dart';
+import 'package:flutter_application_1/picture_block/models/block_data.dart';
 import 'ui/dragable_block.dart';
 import 'interaction/block_helpers.dart';
 import 'ui/command_manager.dart';
 import 'ui/category_buttons.dart';
 import 'ui/action_buttons.dart';
 import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
+import 'package:flutter_application_1/picture_block/models/block_factory.dart';
+import 'ui/repeat_block_widget.dart';
 
 class PictureBlockPage extends StatefulWidget {
   const PictureBlockPage({Key? key}) : super(key: key);
@@ -41,51 +44,52 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
     commandImage.clear(); // Clear previous command images
     if (category == 'Events') {
       commandImage = [
-        BlockWithImage(imagePath: 'assets/images/start_virtual.png', shape: Shape.event1),
-        BlockWithImage(imagePath: 'assets/images/start_physical.png', shape: Shape.event2),
-        BlockWithImage(imagePath: 'assets/images/back_sensor.png', shape: Shape.event2),
-        BlockWithImage(imagePath: 'assets/images/belly_sensor.png', shape: Shape.event2),
-        BlockWithImage(imagePath: 'assets/images/nose_sensor.png', shape: Shape.event2),
+        BlockWithImage(imagePath: 'assets/images/start_virtual.png', shape: Shape.event1, name: 'start_virtual'),
+        BlockWithImage(imagePath: 'assets/images/start_physical.png', shape: Shape.event2, name: 'start_physical'),
+        BlockWithImage(imagePath: 'assets/images/back_sensor.png', shape: Shape.event2, name: 'back_sensor'),
+        BlockWithImage(imagePath: 'assets/images/belly_sensor.png', shape: Shape.event2, name: 'belly_sensor'),
+        BlockWithImage(imagePath: 'assets/images/nose_sensor.png', shape: Shape.event2, name: 'nose_sensor'),
       ];
     } else if (category == 'Virtual') {
       commandImage = [
-        BlockWithImage(imagePath: 'assets/images/move_up.png', shape: Shape.virtual),
-        BlockWithImage(imagePath: 'assets/images/move_down.png', shape: Shape.virtual),
-        BlockWithImage(imagePath: 'assets/images/move_left.png', shape: Shape.virtual),
-        BlockWithImage(imagePath: 'assets/images/move_right.png', shape: Shape.virtual),
+        BlockWithImage(imagePath: 'assets/images/move_up.png', shape: Shape.virtual, name: 'move_up'),
+        BlockWithImage(imagePath: 'assets/images/move_down.png', shape: Shape.virtual, name: 'move_down'),
+        BlockWithImage(imagePath: 'assets/images/move_left.png', shape: Shape.virtual, name: 'move_left'),
+        BlockWithImage(imagePath: 'assets/images/move_right.png', shape: Shape.virtual, name: 'move_right'),
       ];
     } else if (category == 'Actions') {
       commandImage = [
-        BlockWithImage(imagePath: 'assets/images/sit.png', shape: Shape.action),
-        BlockWithImage(imagePath: 'assets/images/lay_down.png', shape: Shape.action),
-        BlockWithImage(imagePath: 'assets/images/stand.png', shape: Shape.action),
-        BlockWithImage(imagePath: 'assets/images/play_dead.png', shape: Shape.action),
-        BlockWithImage(imagePath: 'assets/images/bow.png', shape: Shape.action),
-        BlockWithImage(imagePath: 'assets/images/beg.png', shape: Shape.action),
-        BlockWithImage(imagePath: 'assets/images/howl.png', shape: Shape.action),
-        BlockWithImage(imagePath: 'assets/images/wag_tail.png', shape: Shape.action),
+        BlockWithImage(imagePath: 'assets/images/sit.png', shape: Shape.action, name: 'sit'),
+        BlockWithImage(imagePath: 'assets/images/lay_down.png', shape: Shape.action, name: 'lay_down'),
+        BlockWithImage(imagePath: 'assets/images/stand.png', shape: Shape.action, name: 'stand'),
+        BlockWithImage(imagePath: 'assets/images/play_dead.png', shape: Shape.action, name: 'play_dead'),
+        BlockWithImage(imagePath: 'assets/images/bow.png', shape: Shape.action, name: 'bow'),
+        BlockWithImage(imagePath: 'assets/images/beg.png', shape: Shape.action, name: 'beg'),
+        BlockWithImage(imagePath: 'assets/images/howl.png', shape: Shape.action, name: 'howl'),
+        BlockWithImage(imagePath: 'assets/images/wag_tail.png', shape: Shape.action, name: 'wag_tail'),
       ];
     } else if (category == 'Variables') {
       commandImage = [
-        BlockWithImage(imagePath: 'assets/images/walk.png', shape: Shape.variable1),
-        BlockWithImage(imagePath: 'assets/images/turn.png', shape: Shape.variable1),
-        BlockWithImage(imagePath: 'assets/images/lift_left.png', shape: Shape.variable1),
-        BlockWithImage(imagePath: 'assets/images/eyes.png', shape: Shape.variable1),
-        BlockWithImage(imagePath: 'assets/images/mouth.png', shape: Shape.variable1),
-        BlockWithImage(imagePath: 'assets/images/forwards.png', shape: Shape.variable2),
-        BlockWithImage(imagePath: 'assets/images/backwards.png', shape: Shape.variable2),
-        BlockWithImage(imagePath: 'assets/images/right.png', shape: Shape.variable2),
-        BlockWithImage(imagePath: 'assets/images/left.png', shape: Shape.variable2),
-        BlockWithImage(imagePath: 'assets/images/front_left_leg.png', shape: Shape.variable2),
-        BlockWithImage(imagePath: 'assets/images/front_right_leg.png', shape: Shape.variable2),
-        BlockWithImage(imagePath: 'assets/images/back_left_leg.png', shape: Shape.variable2),
-        BlockWithImage(imagePath: 'assets/images/back_right_leg.png', shape: Shape.variable2),
-        BlockWithImage(imagePath: 'assets/images/open.png', shape: Shape.variable2),
-        BlockWithImage(imagePath: 'assets/images/closed.png', shape: Shape.variable2),
+        BlockWithImage(imagePath: 'assets/images/walk.png', shape: Shape.variable1, name: 'walk'),
+        BlockWithImage(imagePath: 'assets/images/turn.png', shape: Shape.variable1, name: 'turn'),
+        BlockWithImage(imagePath: 'assets/images/lift_left.png', shape: Shape.variable1, name: 'lift_left'),
+        BlockWithImage(imagePath: 'assets/images/eyes.png', shape: Shape.variable1, name: 'eyes'),
+        BlockWithImage(imagePath: 'assets/images/mouth.png', shape: Shape.variable1, name: 'mouth'),
+        BlockWithImage(imagePath: 'assets/images/forwards.png', shape: Shape.variable2, name: 'forwards'),
+        BlockWithImage(imagePath: 'assets/images/backwards.png', shape: Shape.variable2, name: 'backwards'),
+        BlockWithImage(imagePath: 'assets/images/right.png', shape: Shape.variable2, name: 'right'),
+        BlockWithImage(imagePath: 'assets/images/left.png', shape: Shape.variable2, name: 'left'),
+        BlockWithImage(imagePath: 'assets/images/front_left_leg.png', shape: Shape.variable2, name: 'front_left_leg'),
+        BlockWithImage(imagePath: 'assets/images/front_right_leg.png', shape: Shape.variable2, name: 'front_right_leg'),
+        BlockWithImage(imagePath: 'assets/images/back_left_leg.png', shape: Shape.variable2, name: 'back_left_leg'),
+        BlockWithImage(imagePath: 'assets/images/back_right_leg.png', shape: Shape.variable2, name: 'back_right_leg'),
+        BlockWithImage(imagePath: 'assets/images/open.png', shape: Shape.variable2, name: 'open'),
+        BlockWithImage(imagePath: 'assets/images/closed.png', shape: Shape.variable2, name: 'closed'),
       ];
     } else if (category == 'Control') {
       commandImage = [
-        BlockWithImage(imagePath: 'assets/images/wait.png', shape: Shape.control),
+        BlockWithImage(imagePath: 'assets/images/wait.png', shape: Shape.control, name: 'wait'),
+        BlockWithImage(imagePath: 'assets/images/wait.png', shape: Shape.control2, name: 'repeat'),
       ];
     }
   });
@@ -110,40 +114,49 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
     return BlockHelpers.getLocalPosition(_stackKey, globalPosition);
   }
 
-  // Handle the update of block connections
   void _handleBlockUpdate(BlockData movedBlock) {
     setState(() {
-      // Check if the block is dragged outside the workspace
-      if (movedBlock.position.dx < 0 || movedBlock.position.dx > _stackKey.currentContext!.size!.width ||
-          movedBlock.position.dy < 0 || movedBlock.position.dy > _stackKey.currentContext!.size!.height) {
-        // Remove block if dragged outside
+      // 1. 邊界檢查：確保區塊未超出工作區
+      final workspaceSize = _stackKey.currentContext!.size!;
+      if (movedBlock.position.dx < 0 ||
+          movedBlock.position.dx > workspaceSize.width ||
+          movedBlock.position.dy < 0 ||
+          movedBlock.position.dy > workspaceSize.height) {
         arrangedCommands.removeWhere((block) => block.id == movedBlock.id);
-        blockSequence.updateOrder(arrangedCommands); // Update block order
+        blockSequence.updateOrder(arrangedCommands);
         return;
       }
-      bool connected = false; // Flag to check if the block is connected
 
-      // Check connections with other blocks
+      // 2. 直接用 tryConnect 檢查與其他區塊的連接
+      bool connected = false;
       for (var block in arrangedCommands) {
-        if (block != movedBlock){ 
-          if (BlockHelpers.canConnect(block, movedBlock, ConnectionType.right)) {
-            BlockHelpers.establishConnection(block, movedBlock, ConnectionType.right);
-            connected = true;
-            break;
-          } else if (BlockHelpers.canConnect(movedBlock, block, ConnectionType.right)) {
-            BlockHelpers.establishConnection(movedBlock, block, ConnectionType.right);
-            connected = true;
-            break;
-          }
+        if (block.id == movedBlock.id) continue;
+        // 由於 tryConnect 內部會依據連接點進行對齊及連接，這裡可以依序嘗試
+        if (BlockHelpers.tryConnect(block, movedBlock) ||
+            BlockHelpers.tryConnect(movedBlock, block)) {
+          connected = true;
+          break;
         }
       }
-
-      // If no connection is made, disconnect all
+      
+      // 如果無法建立連接，就斷開 movedBlock 現有的連線
       if (!connected) {
-        BlockHelpers.disconnectAll(movedBlock);
+        BlockHelpers.disconnect(movedBlock);
+      } else {
+        // 如果成功連接，再次調整整個連接鏈確保所有方塊對齊
+        List<BlockData> connectedChain = BlockHelpers.getRightConnectedBlocks(movedBlock);
+        if (connectedChain.isNotEmpty) {
+          BlockHelpers.adjustConnectedChain(connectedChain[0]);
+        }
       }
-      blockSequence.updateOrder(arrangedCommands); // Update block order
-      blockSequence.printBlockOrder(); // Print the order of blocks
+      
+      // 確保 movedBlock 仍在全局排列中
+      if (!arrangedCommands.any((b) => b.id == movedBlock.id)) {
+        arrangedCommands.add(movedBlock);
+      }
+      // 3. 更新全局排列以及命令字串
+      blockSequence.updateOrder(arrangedCommands);
+      print(blockSequence.toCommand());
     });
   }
 
@@ -177,7 +190,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                 // Handle upload action
               },
               onRun: () {
-                virtualController.executeMoves(blockSequence.getBlockOrder());
+                // virtualController.executeMoves(blockSequence.getBlockOrder());
               },
               onStop: () {
                 virtualController.stopExecution();
@@ -218,14 +231,32 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                           DragTarget<BlockWithImage>(
                             onAcceptWithDetails: (details) {
                               final localPosition = _getLocalPosition(details.offset);
+                              final newBlock = createBlockFromData(details.data, localPosition);
+                              
                               setState(() {
-                                arrangedCommands.add(BlockData(
-                                  imagePath: details.data.imagePath,
-                                  position: localPosition,
-                                  blockShape: details.data.shape,
-                                ));
+                                arrangedCommands.add(newBlock);
+                                
+                                // 嘗試與現有方塊連接
+                                bool connected = false;
+                                for (var block in arrangedCommands) {
+                                  if (block.id == newBlock.id) continue;
+                                  if (BlockHelpers.tryConnect(block, newBlock) ||
+                                      BlockHelpers.tryConnect(newBlock, block)) {
+                                    connected = true;
+                                    break;
+                                  }
+                                }
+                                
+                                // 如果連接成功，調整整個連接鏈
+                                if (connected) {
+                                  List<BlockData> connectedChain = BlockHelpers.getRightConnectedBlocks(newBlock);
+                                  if (connectedChain.isNotEmpty) {
+                                    BlockHelpers.adjustConnectedChain(connectedChain[0]);
+                                  }
+                                }
+                                
                                 blockSequence.updateOrder(arrangedCommands);
-                                blockSequence.printBlockOrder();
+                                blockSequence.toCommand();
                               });
                             },
                             builder: (context, candidateData, rejectedData) {
@@ -238,12 +269,16 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                           ),
                           // Render the blocks that have been placed
                           ...arrangedCommands.map((block) {
+                            if(block is RepeatBlock){
+                              return RepeatBlockWidget(data: block);
+                            }else{
                             return DraggableBlock(
                               blockData: block, // Pass the block data
                               onUpdate: _handleBlockUpdate, // Callback to handle block updates
                               virtualController: virtualController,
                               arrangedCommands: arrangedCommands,
                             );
+                            }
                           }).toList(),
                         ],
                       ),
