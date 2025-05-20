@@ -74,6 +74,7 @@ class BlockHelpers {
 
   // 如果连接超出距离，就断开连接
     static void checkAndDisconnect(BlockData block) {
+      int snapThreshold = 5;
       for (var cp in block.connectionPoints) {
         var connectedBlock = cp.connectedBlock;
         if (connectedBlock != null) {
@@ -179,5 +180,31 @@ class BlockHelpers {
     return (typeA == ConnectionType.next && typeB == ConnectionType.previous) ||
            (typeA == ConnectionType.previous && typeB == ConnectionType.next);
   }
-  
+
+    /// 只斷開 block 的「previous」連接，保留其後續鏈路
+  static void disconnectPreviousConnection(BlockData block) {
+    // 1. 找到 block 上的 previous 連接點（且已經連上別的 block）
+    ConnectionPoint? prevCP;
+    for (var cp in block.connectionPoints) {
+      if (cp.type == ConnectionType.previous && cp.connectedBlock != null) {
+        prevCP = cp;
+        break;
+      }
+    }
+    if (prevCP == null) return;
+
+    // 2. 取得被連接的那個「前一個」block
+    final parent = prevCP.connectedBlock!;
+
+    // 3. 在 parent 上找對應的 next 連接點，並把它斷掉
+    for (var cp in parent.connectionPoints) {
+      if (cp.type == ConnectionType.next && cp.connectedBlock == block) {
+        cp.connectedBlock = null;
+        break;
+      }
+    }
+
+    // 4. 最後把自己的 previous 也斷掉
+    prevCP.connectedBlock = null;
+  }
 }

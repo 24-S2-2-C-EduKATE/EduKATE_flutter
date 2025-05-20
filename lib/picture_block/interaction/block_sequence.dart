@@ -26,7 +26,10 @@ class BlockSequence {
     return null;
   }
 
+  // Getter for length
+  int get length => blocks.length;
   // 更新區塊順序
+  
   void updateOrder(List<BlockData> newOrder) {
     blocks
       ..clear()

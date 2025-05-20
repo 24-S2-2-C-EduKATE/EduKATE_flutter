@@ -6,7 +6,6 @@ import '../interaction/block_sequence.dart';
 class RepeatBlock extends BlockData {
   late final int repeatCount;
   final BlockSequence nestedSequence;
-  List<BlockData> nestedBlocks = [];
 
   RepeatBlock({
     required this.repeatCount,
@@ -35,20 +34,10 @@ class RepeatBlock extends BlockData {
     return "REPEAT:$repeatCount[${nestedSequence.toCommand()}]";
   }
 
-  // 添加子积木
-  void addNestedBlock(BlockData block) {
-    nestedBlocks.add(block);
-  }
-
-  // 移除子积木
-  void removeNestedBlock(BlockData block) {
-    nestedBlocks.remove(block);
-  }
-
   // 获取 repeat 积木的宽度
   double getWidth() {
     double baseWidth = 65; // 基础宽度
-    double nestedBlockWidth = nestedBlocks.length * 65; // 子积木总宽度
+    double nestedBlockWidth = nestedSequence.length * 65; // 子积木总宽度
     return baseWidth + nestedBlockWidth;
   }
 }
