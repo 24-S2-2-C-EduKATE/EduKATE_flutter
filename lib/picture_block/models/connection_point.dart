@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'block_data.dart';
 
 enum ConnectionType {
-  previous, // 用於連接前一個區塊
-  next,     // 用於連接下一個區塊
-  input,    // 容器區塊用以接收內部子區塊
+  previous, // Used to connect to the previous block
+  next,     // Used to connect to the next block
+  input,    // Used by container blocks to receive nested child blocks
 }
 
 class ConnectionPoint {
   final ConnectionType type;
-  // 相對於區塊本身的偏移位置（例如連接點在左側、右側或底部）
+  
+  // Offset relative to the block itself (e.g., connection point on the left, right, or bottom)
   final Offset relativeOffset;
+  
   BlockData? connectedBlock;
 
   ConnectionPoint({
@@ -20,7 +22,7 @@ class ConnectionPoint {
     this.connectedBlock,
   });
 
-  /// 以區塊的全局位置換算出此連接點的全局位置
+  /// Calculate the global position of this connection point based on the block's global position
   Offset getGlobalPosition(Offset blockPosition) {
     return blockPosition + relativeOffset;
   }

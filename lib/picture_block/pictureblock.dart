@@ -283,7 +283,13 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                           // Render the blocks that have been placed
                           ...arrangedCommands.map((block) {
                             if(block is RepeatBlock){
-                              return RepeatBlockWidget(data: block);
+                              return RepeatBlockWidget(
+                                data: block,
+                                onSizeChanged: () {
+                                  _handleBlockUpdate(block); // Or a more specific update logic
+                                  setState(() {}); // Ensure UI rebuilds if layout of other things depends on this
+                                },
+                              );
                             }else{
                             return DraggableBlock(
                               blockData: block, // Pass the block data

@@ -5,7 +5,7 @@ import 'package:flutter_application_1/picture_block/interaction/block_sequence.d
 import 'connection_point.dart';
 
 class EventBlock extends BlockData {
-  // 用來儲存容器內部的子區塊，類似 Blockly 或 Scratch 的內嵌區塊區域
+  // Used to store child blocks inside the container, similar to embedded block areas in Blockly or Scratch
   BlockSequence? innerSequence;
 
   EventBlock({
@@ -14,13 +14,13 @@ class EventBlock extends BlockData {
     required Offset position,
   }) : super(
           name: name,
-          blockShape: Shape.event2, // 根據設計選擇形狀
+          blockShape: Shape.event2, // Choose shape based on design
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 若需要與其他事件區塊連接，可定義 next 連接點（例如右側）
+            // If connection to other event blocks is needed, define a next connection point (e.g., on the right side)
             ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
-            // 可另外定義一個 input 連接點，作為放置子區塊的 drop 區域
+            // Optionally define an input connection point as a drop area for nested child blocks
             ConnectionPoint(type: ConnectionType.input, relativeOffset: Offset(10, 70)),
           ],
         );
