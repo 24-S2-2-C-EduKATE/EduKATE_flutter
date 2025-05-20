@@ -13,18 +13,18 @@ class RepeatBlock extends BlockData {
     required String imagePath,
     required Offset position,
     required this.nestedSequence,
-  })  : assert(repeatCount > 0, "repeatCount 必須大於 0"),
+  })  : assert(repeatCount > 0, "repeatCount must be greater than 0"),
         super(
           name: name,
           blockShape: Shape.control2,
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 假設左側為上一個區塊連接點
+            // Assume the left side is the connection point for the previous block
             ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32)),
-            // 假設右側為下一個區塊連接點
+            // Assume the right side is the connection point for the next block
             ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32)),
-            // 假設下半部為子區塊連接點
+            // Assume the lower part is the connection point for nested blocks
             ConnectionPoint(type: ConnectionType.input, relativeOffset: Offset(32, 0)),
           ],
         );
@@ -34,15 +34,15 @@ class RepeatBlock extends BlockData {
     return "REPEAT:$repeatCount[${nestedSequence.toCommand()}]";
   }
 
-  // 获取 repeat 积木的宽度
+  // Get the width of the repeat block
   double getWidth() {
-    double baseWidth = 65; // 基础宽度
-    double nestedBlockWidth = nestedSequence.length * 65; // 子积木总宽度
+    double baseWidth = 65; // Base width
+    double nestedBlockWidth = nestedSequence.length * 65; // Total width of nested blocks
     return baseWidth + nestedBlockWidth;
   }
 }
 
-// 拼图形状的 CustomPainter（RepeatBlock 背景）
+// CustomPainter for puzzle-shaped block background (RepeatBlock)
 class PuzzlePainter extends CustomPainter {
   final Color color;
 
@@ -60,7 +60,7 @@ class PuzzlePainter extends CustomPainter {
     final double ovalHeight = rectHeight + 5;
     const double cornerRadius = 20.0;
 
-    // 1. 主体：圆角矩形 + 左侧凹槽
+    // 1. Main body: rounded rectangle + left-side notch
     path.moveTo(0, cornerRadius);
     path.quadraticBezierTo(0, 0, cornerRadius, 0);
     path.lineTo(size.width - cornerRadius, 0);
@@ -73,14 +73,14 @@ class PuzzlePainter extends CustomPainter {
     path.lineTo(cornerRadius, 1.5 * cornerRadius);
     path.lineTo(cornerRadius, size.height);
     path.quadraticBezierTo(0, size.height, 0, size.height - cornerRadius);
-    // 左侧凹槽
+    // Left-side notch
     path.lineTo(0, topOffset + rectHeight);
     path.lineTo(6, topOffset + rectHeight);
     path.lineTo(6, topOffset);
     path.lineTo(0, topOffset);
     path.close();
 
-    // 2. 左侧凹槽内的小椭圆
+    // 2. Small oval inside the left-side notch
     final double ovalCenterX = 9.55;
     final double ovalCenterY = topOffset + ovalHeight / 2;
     path.moveTo(6, topOffset + rectHeight);
@@ -96,7 +96,7 @@ class PuzzlePainter extends CustomPainter {
     );
     path.close();
 
-    // 3. 右侧凸台（矩形 + 椭圆）
+    // 3. Right-side protrusion (rectangle + oval)
     path.addRect(Rect.fromLTWH(size.width, topOffset, 6, rectHeight));
     path.addOval(Rect.fromLTWH(
       size.width + 3.55,
@@ -105,7 +105,7 @@ class PuzzlePainter extends CustomPainter {
       ovalHeight,
     ));
 
-    // 绘制
+    // Draw
     canvas.drawPath(path, paint);
   }
 

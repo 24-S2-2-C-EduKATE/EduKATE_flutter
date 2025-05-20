@@ -5,8 +5,8 @@ import '../interaction/block_helpers.dart';
 import 'package:flutter_application_1/picture_block/models/block_shape.dart';
 
 /// RepeatBlockWidget: UI for RepeatBlock
-/// - 支持将其他积木拖入到槽中
-/// - 支持将已嵌套的积木拖出以移除
+/// - Supports dragging other blocks into the slot
+/// - Supports removing nested blocks by dragging them out
 class RepeatBlockWidget extends StatefulWidget {
   final RepeatBlock data;
   const RepeatBlockWidget({required this.data, Key? key}) : super(key: key);
@@ -16,117 +16,117 @@ class RepeatBlockWidget extends StatefulWidget {
 }
 
 class _RepeatBlockWidgetState extends State<RepeatBlockWidget> {
-  // GlobalKey 用于获取区域大小，以检测拖出
+  // GlobalKey used to obtain the area size for drag-out detection
   final GlobalKey _key = GlobalKey();
 
-  /// 如果子积木被拖到区域外，则移除
+  /// Remove the child block if it is dragged outside the container area
   void _removeChild(BlockData child, Offset globalPos) {
     final renderBox = _key.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
     final local = renderBox.globalToLocal(globalPos);
     if (!(Offset.zero & renderBox.size).contains(local)) {
       setState(() {
-        widget.data.nestedBlocks.remove(child);
+        widget.data.nestedSequence.removeBlock(child);
       });
     }
   }
 
- @override
-Widget build(BuildContext context) {
-  return Positioned(
-    left: widget.data.position.dx,
-    top: widget.data.position.dy,
-    child: GestureDetector(
-      // 整体拖动 RepeatBlock
-      onPanUpdate: (details) {
-        setState(() {
-          widget.data.position += details.delta;
-        });
-      },
-      child: DragTarget<BlockData>(
-        // 接收外部拖入的积木
-        onAccept: (blockData) {
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: widget.data.position.dx,
+      top: widget.data.position.dy,
+      child: GestureDetector(
+        // Drag the entire RepeatBlock
+        onPanUpdate: (details) {
           setState(() {
-            widget.data.nestedBlocks.add(blockData);
+            widget.data.position += details.delta;
           });
         },
-        builder: (context, candidateData, rejectedData) {
-          return Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                key: _key,
-                child: CustomPaint(
-                  painter: PuzzlePainter(color: Colors.orange),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // 顶部留空
-                        const SizedBox(height: 40, width: 70),
-                        // 嵌套积木水平滚动区
-                        Container(
-                          height: 100,
-                          color: Colors.white,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: widget.data.nestedBlocks.map((child) {
-                                // 将子积木作为 Draggable
-                                return Draggable<BlockData>(
-                                  data: child,
-                                  feedback: _buildChildWidget(child, opacity: 0.7),
-                                  childWhenDragging: Container(),
-                                  onDragEnd: (details) => _removeChild(child, details.offset),
-                                  child: _buildChildWidget(child),
-                                );
-                              }).toList(),
+        child: DragTarget<BlockData>(
+          // Accept blocks dragged in from outside
+          onAccept: (blockData) {
+            setState(() {
+              widget.data.nestedSequence.addBlock(blockData);
+            });
+          },
+          builder: (context, candidateData, rejectedData) {
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  key: _key,
+                  child: CustomPaint(
+                    painter: PuzzlePainter(color: Colors.orange),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Leave space at the top
+                          const SizedBox(height: 40, width: 70),
+                          // Horizontal scroll area for nested blocks
+                          Container(
+                            height: 100,
+                            color: Colors.white,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: widget.data.nestedSequence.blocks.map((child) {
+                                  // Render each nested block as a Draggable
+                                  return Draggable<BlockData>(
+                                    data: child,
+                                    feedback: _buildChildWidget(child, opacity: 0.7),
+                                    childWhenDragging: Container(),
+                                    onDragEnd: (details) => _removeChild(child, details.offset),
+                                    child: _buildChildWidget(child),
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
+                          const SizedBox(height: 10),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // 将数字输入框定位到右上角
-              Positioned(
-                top: -2,
-                right: -2,
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: TextField(
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      isCollapsed: true,
-                      contentPadding: const EdgeInsets.only(top: 4),
-                      hintText: widget.data.repeatCount.toString(),
+                // Position the number input field in the top-right corner
+                Positioned(
+                  top: -2,
+                  right: -2,
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        isCollapsed: true,
+                        contentPadding: const EdgeInsets.only(top: 4),
+                        hintText: widget.data.repeatCount.toString(),
+                      ),
+                      onChanged: (v) {
+                        final t = int.tryParse(v);
+                        if (t != null) {
+                          setState(() {
+                            widget.data.repeatCount = t;
+                          });
+                        }
+                      },
                     ),
-                    onChanged: (v) {
-                      final t = int.tryParse(v);
-                      if (t != null) {
-                        setState(() {
-                          widget.data.repeatCount = t;
-                        });
-                      }
-                    },
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-  /// 构建子积木的渲染
+  /// Build the visual rendering for a child block
   Widget _buildChildWidget(BlockData child, {double opacity = 1.0}) {
     return Opacity(
       opacity: opacity,

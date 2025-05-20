@@ -20,7 +20,7 @@ class VisualBlock extends BlockData {
 
   @override
   String toCommand() {
-    // 此處僅回傳一個簡單字串，用來滿足介面需求
+
     return "$name command";
   }
 }

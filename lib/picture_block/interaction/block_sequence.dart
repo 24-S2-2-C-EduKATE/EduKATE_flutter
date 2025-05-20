@@ -6,7 +6,7 @@ class BlockSequence {
   List<BlockData> blocks = [];
   BlockSequence({List<BlockData>? blocks}) : blocks = blocks ?? [];
 
-  // 將區塊序列轉換為命令字串（使用 "|" 分隔）
+  // Convert the block sequence into a command string (separated by "|")
   String toCommand() {
     return blocks.map((block) => block.toCommand()).join(" | ");
   }
@@ -28,15 +28,15 @@ class BlockSequence {
 
   // Getter for length
   int get length => blocks.length;
-  // 更新區塊順序
-  
+
+  // Update the order of blocks
   void updateOrder(List<BlockData> newOrder) {
     blocks
       ..clear()
       ..addAll(newOrder);
   }
 
-  // 取出區塊序列的一部分
+  // Extract a portion of the block sequence
   BlockSequence extractSubsequence(int startIndex, int endIndex) {
     List<BlockData> subList = blocks.sublist(startIndex, endIndex);
     return BlockSequence(blocks: subList);

@@ -6,15 +6,15 @@ import '../models/connection_point.dart';
 import 'dart:collection';
 
 class BlockHelpers {
-  static double snapThreshold = 20.0; // 距离阈值
+  static double snapThreshold = 20.0; // Distance threshold
 
-  // 获取局部坐标位置
+  // Get the local coordinate position
   static Offset getLocalPosition(GlobalKey stackKey, Offset globalPosition) {
     final RenderBox stackRenderBox = stackKey.currentContext!.findRenderObject() as RenderBox;
     return stackRenderBox.globalToLocal(globalPosition);
   }
 
-  // 检查是否有可能连接的方块
+  // Check for possible blocks to connect
   static BlockData? checkPossibleConnection(BlockData movedBlock, List<BlockData> others) {
     BlockData? connectionTarget;
     for (var block in others) {
@@ -35,7 +35,7 @@ class BlockHelpers {
     return connectionTarget;
   }
 
-  // 尝试连接两个块
+  // Attempt to connect two blocks
   static bool tryConnect(BlockData blockA, BlockData blockB) {
     for (var cpA in blockA.connectionPoints) {
       for (var cpB in blockB.connectionPoints) {
@@ -46,10 +46,10 @@ class BlockHelpers {
             cpA.connectedBlock = blockB;
             cpB.connectedBlock = blockA;
 
-            // 位置对齐（让连接点重叠）
+            // Align positions (make connection points overlap)
             blockB.position = blockA.position + (cpA.relativeOffset - cpB.relativeOffset);
 
-            adjustConnectedChain(blockA); // 保持链式对齐
+            adjustConnectedChain(blockA);  // Maintain chain alignment
             return true;
           }
         }
@@ -58,7 +58,7 @@ class BlockHelpers {
     return false;
   }
 
-  // 断开指定块的所有连接（新版 connectionPoints）
+  // Disconnect all connections of the specified block (new connectionPoints implementation)
   static void disconnect(BlockData block) {
     for (var cp in block.connectionPoints) {
       if (cp.connectedBlock != null) {
@@ -72,7 +72,7 @@ class BlockHelpers {
     }
   }
 
-  // 如果连接超出距离，就断开连接
+  // If a connection exceeds the distance threshold, disconnect it
     static void checkAndDisconnect(BlockData block) {
       int snapThreshold = 5;
       for (var cp in block.connectionPoints) {
@@ -84,7 +84,7 @@ class BlockHelpers {
               Offset globalB = otherCp.getGlobalPosition(connectedBlock.position);
 
               if ((globalA - globalB).distance > snapThreshold) {
-                // 超出就断开
+                // Disconnect when threshold exceeded
                 cp.connectedBlock = null;
                 otherCp.connectedBlock = null;
                 print('Disconnected Block ${block.id} from Block ${connectedBlock.id} due to distance');
@@ -97,7 +97,7 @@ class BlockHelpers {
 
 
 
-  // 获取右边连接的所有块
+  // Get all blocks connected to the right
     static List<BlockData> getRightConnectedBlocks(BlockData block, [Set<BlockData>? visited]) {
       visited ??= <BlockData>{};
       visited.add(block);
@@ -123,7 +123,7 @@ class BlockHelpers {
 
 
 
-  // 根据链头开始调整一整个链条
+  // Adjust the entire chain starting from the head of the chain
   static void adjustConnectedChain(BlockData startBlock) {
     BlockData headBlock = _findHeadBlock(startBlock);
     _adjustBlockChainFromHead(headBlock);
@@ -175,15 +175,15 @@ class BlockHelpers {
     }
   }
 
-  // 判断两个连接点类型是否兼容
+  // Determine if two connection point types are compatible
   static bool _compatible(ConnectionType typeA, ConnectionType typeB) {
     return (typeA == ConnectionType.next && typeB == ConnectionType.previous) ||
            (typeA == ConnectionType.previous && typeB == ConnectionType.next);
   }
 
-    /// 只斷開 block 的「previous」連接，保留其後續鏈路
+    // Disconnect only the block's "previous" connection, preserving its subsequent chain
   static void disconnectPreviousConnection(BlockData block) {
-    // 1. 找到 block 上的 previous 連接點（且已經連上別的 block）
+    // 1. Find the block's previous connection point (if connected)
     ConnectionPoint? prevCP;
     for (var cp in block.connectionPoints) {
       if (cp.type == ConnectionType.previous && cp.connectedBlock != null) {
@@ -193,10 +193,10 @@ class BlockHelpers {
     }
     if (prevCP == null) return;
 
-    // 2. 取得被連接的那個「前一個」block
+    // 2. Get the "previous" block it was connected to
     final parent = prevCP.connectedBlock!;
 
-    // 3. 在 parent 上找對應的 next 連接點，並把它斷掉
+    // 3. On the parent block, find the corresponding next connection point and disconnect it
     for (var cp in parent.connectionPoints) {
       if (cp.type == ConnectionType.next && cp.connectedBlock == block) {
         cp.connectedBlock = null;

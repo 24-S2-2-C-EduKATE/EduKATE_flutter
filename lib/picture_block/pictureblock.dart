@@ -13,6 +13,7 @@ import 'ui/action_buttons.dart';
 import 'package:flutter_application_1/picture_block/models/block_with_image.dart';
 import 'package:flutter_application_1/picture_block/models/block_factory.dart';
 import 'ui/repeat_block_widget.dart';
+import 'models/event_block.dart';
 
 class PictureBlockPage extends StatefulWidget {
   const PictureBlockPage({Key? key}) : super(key: key);
@@ -115,49 +116,50 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
   }
 
   void _handleBlockUpdate(BlockData movedBlock) {
-    setState(() {
-      // 1. 邊界檢查：確保區塊未超出工作區
-      final workspaceSize = _stackKey.currentContext!.size!;
-      if (movedBlock.position.dx < 0 ||
-          movedBlock.position.dx > workspaceSize.width ||
-          movedBlock.position.dy < 0 ||
-          movedBlock.position.dy > workspaceSize.height) {
-        arrangedCommands.removeWhere((block) => block.id == movedBlock.id);
-        blockSequence.updateOrder(arrangedCommands);
-        return;
-      }
-
-      // 2. 直接用 tryConnect 檢查與其他區塊的連接
-      bool connected = false;
-      for (var block in arrangedCommands) {
-        if (block.id == movedBlock.id) continue;
-        // 由於 tryConnect 內部會依據連接點進行對齊及連接，這裡可以依序嘗試
-        if (BlockHelpers.tryConnect(block, movedBlock) ||
-            BlockHelpers.tryConnect(movedBlock, block)) {
-          connected = true;
-          break;
-        }
-      }
-      
-      // 如果無法建立連接，就斷開 movedBlock 現有的連線
-      if (!connected) {
-        BlockHelpers.disconnect(movedBlock);
-      } else {
-        // 如果成功連接，再次調整整個連接鏈確保所有方塊對齊
-        List<BlockData> connectedChain = BlockHelpers.getRightConnectedBlocks(movedBlock);
-        if (connectedChain.isNotEmpty) {
-          BlockHelpers.adjustConnectedChain(connectedChain[0]);
-        }
-      }
-      
-      // 確保 movedBlock 仍在全局排列中
-      if (!arrangedCommands.any((b) => b.id == movedBlock.id)) {
-        arrangedCommands.add(movedBlock);
-      }
-      // 3. 更新全局排列以及命令字串
+  setState(() {
+    // 1. Boundary check: Ensure the block stays within the workspace
+    final workspaceSize = _stackKey.currentContext!.size!;
+    if (movedBlock.position.dx < 0 ||
+        movedBlock.position.dx > workspaceSize.width ||
+        movedBlock.position.dy < 0 ||
+        movedBlock.position.dy > workspaceSize.height) {
+      arrangedCommands.removeWhere((block) => block.id == movedBlock.id);
       blockSequence.updateOrder(arrangedCommands);
-      print(blockSequence.toCommand());
-    });
+      return;
+    }
+
+    // 2. Try connecting the block with other blocks using tryConnect
+    bool connected = false;
+    for (var block in arrangedCommands) {
+      if (block.id == movedBlock.id) continue;
+      // tryConnect aligns and connects blocks based on their connection points, so we try both directions
+      if (BlockHelpers.tryConnect(block, movedBlock) ||
+          BlockHelpers.tryConnect(movedBlock, block)) {
+        connected = true;
+        break;
+      }
+    }
+
+    // If connection failed, disconnect any existing connections on movedBlock
+    if (!connected) {
+      BlockHelpers.disconnect(movedBlock);
+    } else {
+      // If successfully connected, realign the entire connected chain to ensure proper alignment
+      List<BlockData> connectedChain = BlockHelpers.getRightConnectedBlocks(movedBlock);
+      if (connectedChain.isNotEmpty) {
+        BlockHelpers.adjustConnectedChain(connectedChain[0]);
+      }
+    }
+
+    // Ensure movedBlock is still part of the global sequence
+    if (!arrangedCommands.any((b) => b.id == movedBlock.id)) {
+      arrangedCommands.add(movedBlock);
+    }
+
+    // 3. Update the global block order and command string
+    blockSequence.updateOrder(arrangedCommands);
+    print(blockSequence.toCommand());
+  });
   }
 
 @override
@@ -190,6 +192,17 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                 // Handle upload action
               },
               onRun: () {
+                // Print all executable sequences starting with an event block
+                print('Executable Sequences:');
+                for (var block in arrangedCommands) {
+                  if (block is EventBlock) {
+                    List<BlockData> sequence = BlockHelpers.getRightConnectedBlocks(block);
+                    if (sequence.isNotEmpty) {
+                      BlockSequence executableSequence = BlockSequence(blocks: sequence);
+                      print(executableSequence.toCommand());
+                    }
+                  }
+                }
                 // virtualController.executeMoves(blockSequence.getBlockOrder());
               },
               onStop: () {
@@ -236,7 +249,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                               setState(() {
                                 arrangedCommands.add(newBlock);
                                 
-                                // 嘗試與現有方塊連接
+                                // Try to connect with existing blocks
                                 bool connected = false;
                                 for (var block in arrangedCommands) {
                                   if (block.id == newBlock.id) continue;
@@ -247,7 +260,7 @@ class _PictureBlockPageState extends State<PictureBlockPage> {
                                   }
                                 }
                                 
-                                // 如果連接成功，調整整個連接鏈
+                                // If connection is successful, adjust the entire connected chain
                                 if (connected) {
                                   List<BlockData> connectedChain = BlockHelpers.getRightConnectedBlocks(newBlock);
                                   if (connectedChain.isNotEmpty) {

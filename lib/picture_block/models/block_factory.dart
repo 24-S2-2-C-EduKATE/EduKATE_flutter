@@ -9,7 +9,8 @@ import 'package:flutter_application_1/picture_block/models/block_with_image.dart
 import 'repeat_block.dart';
 import 'package:flutter_application_1/picture_block/interaction/block_sequence.dart';
 
-/// 根據傳入的 [BlockWithImage] 建立具體的 [BlockData] 實例，並使用給定的位置作為初始位置。
+// Create a specific [BlockData] instance based on the given [BlockWithImage],
+// and use the provided position as the initial placement.
 BlockData createBlockFromData(BlockWithImage data, Offset position) {
   switch (data.shape) {
     case Shape.event1:
@@ -71,8 +72,8 @@ BlockData createBlockFromData(BlockWithImage data, Offset position) {
         position: position,
       );
     default:
-      print('警告：未处理的形状类型 ${data.shape}');
-      // 如果沒有對應類型，就回傳一個預設的 ActionBlock
+      print('Warning: Unhandled shape type ${data.shape}');
+      // If there is no corresponding type, return a default ActionBlock
       return ActionBlock(
         name: data.name,
         imagePath: data.imagePath,
@@ -81,7 +82,7 @@ BlockData createBlockFromData(BlockWithImage data, Offset position) {
   }
 }
 
-/// 虚拟方块类
+// Virtual block class
 class VirtualBlock extends BlockData {
   VirtualBlock({
     required String name,
@@ -93,7 +94,7 @@ class VirtualBlock extends BlockData {
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 虚拟方块的连接点 - 精确定位
+            // Connection points of the variable block – precisely positioned
             ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32.5)),
             ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
           ],
@@ -105,7 +106,7 @@ class VirtualBlock extends BlockData {
   }
 }
 
-/// 变量方块类
+// Variable block class
 class VariableBlock extends BlockData {
   final bool isVariable2;
 
@@ -120,7 +121,7 @@ class VariableBlock extends BlockData {
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 变量方块的连接点 - 精确定位
+            // Connection points of the variable block – precisely positioned
             ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32.5)),
             ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
           ],
@@ -132,7 +133,7 @@ class VariableBlock extends BlockData {
   }
 }
 
-/// 控制方块类
+// Control block class
 class ControlBlock extends BlockData {
   ControlBlock({
     required String name,
@@ -144,10 +145,10 @@ class ControlBlock extends BlockData {
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 控制方块的连接点 - 精确定位
+             // Connection points of the variable block – precisely positioned
             ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32.5)),
             ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
-            // 控制方块可能需要额外的input连接点用于嵌套内容
+            // Control blocks may require an additional input connection for nested content
             ConnectionPoint(type: ConnectionType.input, relativeOffset: Offset(32.5, 65)),
           ],
         );
@@ -158,7 +159,7 @@ class ControlBlock extends BlockData {
   }
 }
 
-/// 声音方块类
+// Sound block class
 class SoundBlock extends BlockData {
   SoundBlock({
     required String name,
@@ -170,7 +171,7 @@ class SoundBlock extends BlockData {
           imagePath: imagePath,
           position: position,
           connectionPoints: [
-            // 声音方块的连接点 - 精确定位
+            // Connection points of the sound block – precisely positioned
             ConnectionPoint(type: ConnectionType.previous, relativeOffset: Offset(0, 32.5)),
             ConnectionPoint(type: ConnectionType.next, relativeOffset: Offset(65, 32.5)),
           ],

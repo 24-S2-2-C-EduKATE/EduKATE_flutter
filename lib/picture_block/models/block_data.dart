@@ -21,7 +21,7 @@ abstract class BlockData {
   final Shape blockShape;
   final String imagePath;
   Offset position;
-  // 每個區塊可定義多個連接點
+  // Each block can define multiple connection points
   List<ConnectionPoint> connectionPoints;
 
   BlockData({
