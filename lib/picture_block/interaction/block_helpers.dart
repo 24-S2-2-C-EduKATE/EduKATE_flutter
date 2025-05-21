@@ -74,7 +74,7 @@ class BlockHelpers {
 
   // If a connection exceeds the distance threshold, disconnect it
     static void checkAndDisconnect(BlockData block) {
-      int snapThreshold = 5;
+      int snapThreshold = 10;
       for (var cp in block.connectionPoints) {
         var connectedBlock = cp.connectedBlock;
         if (connectedBlock != null) {
